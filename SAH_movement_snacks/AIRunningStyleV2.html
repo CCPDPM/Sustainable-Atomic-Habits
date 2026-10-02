@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Running Style Analyzer V2 — Real Pose ML</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root {
+    --grad: linear-gradient(135deg,#4f46e5 0%,#7c3aed 55%,#9333ea 100%);
+    --ink:#1e1b2e; --mut:#6b7280; --line:#e5e7eb; --bg:#f4f2fb;
+    --good:#059669; --warn:#d97706; --bad:#dc2626;
+  }
+  body { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; }
+  .wrap { max-width:1100px; margin:0 auto; padding:24px 20px 80px; }
+
+  header { background:var(--grad); color:#fff; border-radius:20px; padding:28px 32px; margin-bottom:24px;
+    box-shadow:0 12px 40px rgba(79,70,229,.35); }
+  header h1 { font-size:1.9rem; letter-spacing:-.5px; }
+  header p { opacity:.92; margin-top:6px; font-size:.98rem; }
+  .badges { margin-top:14px; display:flex; flex-wrap:wrap; gap:8px; }
+  .badge { background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.35); padding:4px 12px;
+    border-radius:999px; font-size:.78rem; font-weight:600; }
+
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:24px; margin-bottom:20px;
+    box-shadow:0 2px 10px rgba(30,27,46,.05); }
+  .card h2 { font-size:1.15rem; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+  .step-num { display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px;
+    border-radius:50%; background:var(--grad); color:#fff; font-size:.85rem; font-weight:700; flex:none; }
+
+  .row { display:flex; gap:16px; flex-wrap:wrap; align-items:center; }
+  label.fld { display:flex; flex-direction:column; gap:4px; font-size:.82rem; color:var(--mut); font-weight:600; }
+  input[type=number] { width:110px; padding:9px 12px; border:1.5px solid var(--line); border-radius:10px; font-size:1rem; }
+  input[type=number]:focus { outline:none; border-color:#7c3aed; }
+
+  .upload-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:14px; }
+  @media (max-width:720px){ .upload-grid{ grid-template-columns:1fr; } }
+  .drop { border:2px dashed #c4b5fd; border-radius:14px; padding:18px; text-align:center; cursor:pointer;
+    transition:.2s; background:#faf9ff; }
+  .drop:hover, .drop.on { border-color:#7c3aed; background:#f3efff; }
+  .drop .lbl { font-weight:700; margin-bottom:4px; }
+  .drop .hint { font-size:.78rem; color:var(--mut); }
+  .drop video, .drop canvas { width:100%; border-radius:10px; margin-top:10px; display:block; }
+  .vidbox { position:relative; }
+  .vidbox canvas { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+  .drop input[type=file] { display:none; }
+
+  .btn { border:none; cursor:pointer; font-weight:700; border-radius:12px; padding:13px 26px; font-size:1rem;
+    transition:.15s; }
+  .btn:disabled { opacity:.45; cursor:not-allowed; }
+  .btn-primary { background:var(--grad); color:#fff; box-shadow:0 6px 18px rgba(79,70,229,.35); }
+  .btn-primary:hover:not(:disabled){ transform:translateY(-1px); }
+  .btn-ghost { background:#fff; color:#4f46e5; border:1.5px solid #c4b5fd; }
+  .btn-ghost:hover { background:#f3efff; }
+
+  .progress-wrap { display:none; margin-top:16px; }
+  .progress-wrap.show { display:block; }
+  .pbar { height:10px; background:#ede9fe; border-radius:999px; overflow:hidden; }
+  .pfill { height:100%; width:0%; background:var(--grad); transition:width .25s; }
+  .pstatus { font-size:.85rem; color:var(--mut); margin-top:8px; }
+
+  .results { display:none; }
+  .results.show { display:block; animation:fade .5s; }
+  @keyframes fade { from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:none;} }
+
+  .score-hero { display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
+  .score-ring { width:130px; height:130px; border-radius:50%; flex:none;
+    background:conic-gradient(#7c3aed var(--p,0%), #ede9fe 0); display:flex; align-items:center; justify-content:center; }
+  .score-ring .inner { width:104px; height:104px; border-radius:50%; background:#fff; display:flex;
+    flex-direction:column; align-items:center; justify-content:center; }
+  .score-ring .num { font-size:2rem; font-weight:800; color:#4f46e5; }
+  .score-ring .cap { font-size:.7rem; color:var(--mut); font-weight:600; }
+  .score-verdict { font-size:1.05rem; line-height:1.5; }
+  .score-verdict b { color:#4f46e5; }
+
+  .metrics { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; margin-top:18px; }
+  .mcard { background:#faf9ff; border:1px solid var(--line); border-radius:12px; padding:14px; text-align:center; }
+  .mcard .v { font-size:1.45rem; font-weight:800; color:#4f46e5; }
+  .mcard .u { font-size:.72rem; color:var(--mut); font-weight:600; }
+  .mcard .k { font-size:.8rem; color:var(--mut); margin-top:4px; }
+  .mcard.ok .v{color:var(--good);} .mcard.warn .v{color:var(--warn);} .mcard.bad .v{color:var(--bad);}
+
+  .insight { display:flex; gap:14px; padding:14px 16px; border-radius:12px; margin-bottom:10px; border-left:5px solid #7c3aed;
+    background:#faf9ff; }
+  .insight.high { border-left-color:var(--bad); background:#fef2f2; }
+  .insight.medium { border-left-color:var(--warn); background:#fffbeb; }
+  .insight.low { border-left-color:var(--good); background:#ecfdf5; }
+  .insight .ic { font-size:1.5rem; }
+  .insight h4 { font-size:.95rem; }
+  .insight .sev { font-size:.68rem; font-weight:800; letter-spacing:.5px; padding:2px 8px; border-radius:999px;
+    background:#e5e7eb; color:#374151; margin-left:8px; vertical-align:2px; }
+  .insight.high .sev{background:#fee2e2;color:#b91c1c;}
+  .insight.medium .sev{background:#fef3c7;color:#b45309;}
+  .insight.low .sev{background:#d1fae5;color:#047857;}
+  .insight p { font-size:.86rem; color:#4b5563; margin-top:4px; line-height:1.5; }
+  .insight .ev { font-size:.76rem; color:#7c3aed; font-weight:600; margin-top:6px; }
+
+  .ex { border:1px solid var(--line); border-radius:14px; padding:18px; margin-bottom:12px; background:#fff; }
+  .ex-head { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+  .ex-head h4 { font-size:1.02rem; }
+  .prio { font-size:.7rem; font-weight:800; padding:3px 10px; border-radius:999px; letter-spacing:.4px; }
+  .prio.high{background:#fee2e2;color:#b91c1c;} .prio.medium{background:#fef3c7;color:#b45309;} .prio.low{background:#d1fae5;color:#047857;}
+  .ex .why { font-size:.85rem; color:#4b5563; margin-top:8px; line-height:1.5; }
+  .ex .how { font-size:.85rem; color:#374151; margin-top:6px; line-height:1.5; }
+  .ex .how b { color:#4f46e5; }
+  .ex-meta { display:flex; gap:16px; flex-wrap:wrap; margin-top:10px; font-size:.8rem; color:var(--mut); font-weight:600; }
+  .ex-meta span { background:#f3f4f6; padding:4px 10px; border-radius:8px; }
+
+  .plan { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-top:14px; }
+  .day { background:#faf9ff; border:1px solid var(--line); border-radius:12px; padding:14px; }
+  .day h5 { color:#4f46e5; font-size:.9rem; margin-bottom:8px; }
+  .day ul { list-style:none; font-size:.82rem; color:#4b5563; }
+  .day li { padding:3px 0; }
+
+  .note { font-size:.78rem; color:var(--mut); margin-top:14px; line-height:1.5; }
+  .err { display:none; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; border-radius:12px;
+    padding:14px 16px; margin-top:14px; font-size:.9rem; }
+  .err.show { display:block; }
+  .tag { display:inline-block; font-size:.7rem; font-weight:700; background:#ede9fe; color:#5b21b6;
+    padding:2px 8px; border-radius:6px; margin:2px 2px 0 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🏃 AI Running Style Analyzer <span style="font-size:.9rem;opacity:.85">V2</span></h1>
+    <p>Real on-device pose ML (MediaPipe Pose Landmarker · BlazePose GHUM 3D) — analyses 10s side &amp; back view running videos, measures biomechanics, and short-lists the exercises that will move the needle fastest.</p>
+    <div class="badges">
+      <span class="badge">🧠 ML: BlazePose GHUM 3D (33 landmarks)</span>
+      <span class="badge">🔒 100% on-device — video never leaves your browser</span>
+      <span class="badge">📐 Evidence-based exercise mapping</span>
+    </div>
+  </header>
+
+  <div class="card">
+    <h2><span class="step-num">1</span> Runner profile</h2>
+    <div class="row">
+      <label class="fld">Height (cm)
+        <input type="number" id="height" value="175" min="120" max="220" step="1">
+      </label>
+      <span style="font-size:.8rem;color:var(--mut)">Used to convert pixel measurements into real stride length &amp; vertical oscillation.</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="step-num">2</span> Upload 10-second running videos</h2>
+    <div class="upload-grid">
+      <div class="drop" id="dropSide">
+        <div class="lbl">📹 Side view</div>
+        <div class="hint">Runner filmed from the side, full body in frame, ~10s</div>
+        <div class="vidbox"><video id="vSide" muted playsinline></video><canvas id="cSide"></canvas></div>
+        <input type="file" id="fSide" accept="video/*">
+      </div>
+      <div class="drop" id="dropBack">
+        <div class="lbl">📹 Back view</div>
+        <div class="hint">Runner filmed from directly behind, full body in frame, ~10s</div>
+        <div class="vidbox"><video id="vBack" muted playsinline></video><canvas id="cBack"></canvas></div>
+        <input type="file" id="fBack" accept="video/*">
+      </div>
+    </div>
+    <div class="row" style="margin-top:18px">
+      <button class="btn btn-primary" id="btnAnalyze" disabled>🚀 Analyze running form</button>
+      <button class="btn btn-ghost" id="btnDemo">🎬 Try with demo data (no video needed)</button>
+    </div>
+    <div class="progress-wrap" id="progressWrap">
+      <div class="pbar"><div class="pfill" id="pfill"></div></div>
+      <div class="pstatus" id="pstatus">Loading pose model…</div>
+    </div>
+    <div class="err" id="errBox"></div>
+  </div>
+
+  <div class="results" id="results">
+    <div class="card">
+      <h2>📊 Form score</h2>
+      <div class="score-hero">
+        <div class="score-ring" id="ring"><div class="inner"><div class="num" id="scoreNum">–</div><div class="cap">/ 100</div></div></div>
+        <div class="score-verdict" id="verdict"></div>
+      </div>
+      <div class="metrics" id="metrics"></div>
+    </div>
+
+    <div class="card">
+      <h2>🎯 Key insights</h2>
+      <div id="insights"></div>
+    </div>
+
+    <div class="card">
+      <h2>💪 Short-listed exercises</h2>
+      <p style="font-size:.85rem;color:var(--mut);margin-bottom:14px">Ranked by impact: exercises that target your most severe findings come first, with sets, reps and frequency.</p>
+      <div id="exercises"></div>
+    </div>
+
+    <div class="card">
+      <h2>📅 Suggested weekly plan</h2>
+      <div class="plan" id="plan"></div>
+    </div>
+
+    <p class="note">⚠️ Metrics are estimates derived from 2D video landmarks (scaled by your height) and are intended for training guidance, not medical diagnosis. If you feel pain, see a physiotherapist or sports-medicine professional.</p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/vision_bundle.js"></script>
+<script>
+/* ============================================================
+   V2 — REAL ML PIPELINE
+   1. MediaPipe Pose Landmarker (BlazePose GHUM 3D) detects 33
+      body landmarks per frame, on-device.
+   2. Frame-by-frame analysis of side + back videos.
+   3. Biomechanical metrics computed from landmark kinematics.
+   4. Rule-based expert layer turns measurements into insights
+      and issue-linked exercise recommendations.
+   ============================================================ */
+'use strict';
+
+/* ---------- Landmark indices ---------- */
+const LM = { nose:0, lSh:11, rSh:12, lEl:13, rEl:14, lWr:15, rWr:16,
+             lHip:23, rHip:24, lKn:25, rKn:26, lAnk:27, rAnk:28,
+             lHeel:29, rHeel:30, lFoot:31, rFoot:32 };
+
+/* ---------- Small math helpers ---------- */
+const mid  = (a,b) => ({ x:(a.x+b.x)/2, y:(a.y+b.y)/2, v:(a.visibility+b.visibility)/2 });
+const dist = (a,b) => Math.hypot(a.x-b.x, a.y-b.y);
+function angleDeg(a,b,c){ // angle at b
+  const v1={x:a.x-b.x,y:a.y-b.y}, v2={x:c.x-b.x,y:c.y-b.y};
+  const m1=Math.hypot(v1.x,v1.y), m2=Math.hypot(v2.x,v2.y);
+  if(!m1||!m2) return 0;
+  return Math.acos(Math.max(-1,Math.min(1,(v1.x*v2.x+v1.y*v2.y)/(m1*m2))))*180/Math.PI;
+}
+const mean = a => a.length ? a.reduce((s,v)=>s+v,0)/a.length : null;
+const median = a => { if(!a.length) return null; const s=[...a].sort((x,y)=>x-y); return s[Math.floor(s.length/2)]; };
+function smooth(a,w){ const out=[]; for(let i=0;i<a.length;i++){ let s=0,c=0; for(let j=Math.max(0,i-w);j<=Math.min(a.length-1,i+w);j++){ s+=a[j]; c++; } out.push(s/c);} return out; }
+function findMinima(sig, prom, minSep){
+  const out=[]; let last=-1e9;
+  for(let i=1;i<sig.length-1;i++){
+    if(sig[i]<sig[i-1] && sig[i]<=sig[i+1]){
+      const lmax=Math.max(...sig.slice(Math.max(0,i-6),i)), rmax=Math.max(...sig.slice(i+1,Math.min(sig.length,i+7)));
+      if(Math.min(lmax,rmax)-sig[i] >= prom && i-last>=minSep){ out.push(i); last=i; }
+    }
+  }
+  return out;
+}
+const avgVis = (frames, idxs) => {
+  let s=0,c=0; for(const f of frames) for(const i of idxs){ s+=f.lm[i].visibility; c++; }
+  return c? s/c : 0;
+};
+
+/* ---------- Exercise database (tagged by issue) ---------- */
+const EX_DB = [
+  { name:'Metronome cadence runs', tags:['cadence'], type:'Drill',
+    sets:'3 × 5 min', reps:'at 180 spm', freq:'2×/week', dur:'20 min',
+    why:'Raising cadence to 175–185 spm shortens stride, reduces braking forces and cuts ground-contact time — the single biggest efficiency lever for low-cadence runners.',
+    how:'Run easy pace with a metronome app at 180 bpm. Match every beat to one footfall. Keep it relaxed; stop if form breaks.' },
+  { name:'Quick-feet ladder drills', tags:['cadence'], type:'Drill',
+    sets:'5 × 20 s', reps:'max effort', freq:'2×/week', dur:'10 min',
+    why:'Forces rapid foot turnover and trains the nervous system to fire at higher step rates.',
+    how:'On an agility ladder (or chalk lines), step one foot per rung as fast as possible with minimal ground contact.' },
+  { name:'A-skip drills', tags:['overstride','gct'], type:'Drill',
+    sets:'4 × 30 m', reps:'walk back', freq:'2×/week', dur:'12 min',
+    why:'Teaches a paw-back landing under the centre of mass, directly countering overstriding and long ground contact.',
+    how:'Skip with high knee drive, then actively paw the ground back under your hip. Land midfoot, quick contact.' },
+  { name:'Butt kicks', tags:['overstride','gct'], type:'Drill',
+    sets:'4 × 30 m', reps:'walk back', freq:'2×/week', dur:'10 min',
+    why:'Shortens the swing phase and reinforces a quick, elastic ground contact.',
+    how:'Jog slowly, kicking heels toward glutes with a fast, springy rhythm.' },
+  { name:'Stride-shortening intervals', tags:['overstride'], type:'Run',
+    sets:'6 × 200 m', reps:'at 5–10% shorter stride', freq:'1×/week', dur:'25 min',
+    why:'Practising a deliberately shorter stride at speed builds the new motor pattern under fatigue.',
+    how:'Run 200 m reps at 5K pace, consciously landing under your hips. Jog 200 m recovery.' },
+  { name:'Barefoot strides', tags:['heelstrike'], type:'Drill',
+    sets:'6 × 30 m', reps:'on grass', freq:'2×/week', dur:'15 min',
+    why:'Running barefoot makes heel striking painful, forcing a midfoot/forefoot landing and a softer, more elastic foot strike.',
+    how:'On soft grass, run 30 m strides at moderate pace, landing quietly on the midfoot. Build up gradually.' },
+  { name:'Wall ankle dorsiflexion', tags:['heelstrike','ankle'], type:'Mobility',
+    sets:'3 × 15', reps:'per ankle', freq:'5×/week', dur:'8 min',
+    why:'Limited ankle dorsiflexion is a common cause of heel striking and overstriding; improving it lets the foot land closer to the body.',
+    how:'Facing a wall, lunge the knee toward it keeping the heel down. Hold 2 s, return. Progress the foot further back.' },
+  { name:'Forefoot landing drills', tags:['heelstrike'], type:'Drill',
+    sets:'4 × 20 m', reps:'walk back', freq:'2×/week', dur:'10 min',
+    why:'Directly practises the landing pattern that reduces impact peaks and improves elastic energy return.',
+    how:'Jog slowly, land on the ball of the foot with a soft, quiet step. Keep knees slightly bent.' },
+  { name:'Clamshells', tags:['hipdrop'], type:'Strength',
+    sets:'3 × 20', reps:'per side', freq:'4×/week', dur:'10 min',
+    why:'Strengthens gluteus medius — the primary muscle preventing hip drop (Trendelenburg) during stance.',
+    how:'Lie on your side, knees bent 45°, feet together. Open the top knee like a clam against a band, hold 1 s, lower slowly.' },
+  { name:'Banded lateral walks', tags:['hipdrop'], type:'Strength',
+    sets:'3 × 15 steps', reps:'each way', freq:'3×/week', dur:'10 min',
+    why:'Builds glute medius endurance in the exact plane where hip-drop weakness shows.',
+    how:'Band around ankles, slight squat, step sideways keeping tension. 15 steps each direction.' },
+  { name:'Single-leg deadlifts', tags:['hipdrop','asymmetry'], type:'Strength',
+    sets:'3 × 10', reps:'per leg', freq:'3×/week', dur:'15 min',
+    why:'Improves single-leg stability and posterior-chain strength, correcting left/right imbalances.',
+    how:'Stand on one leg, hinge at the hip, lower the torso while the free leg extends behind. Keep hips square.' },
+  { name:'Side plank with leg raise', tags:['hipdrop','trunk'], type:'Strength',
+    sets:'3 × 10', reps:'per side', freq:'3×/week', dur:'10 min',
+    why:'Combines lateral core stability with hip abduction — both needed to keep the pelvis level.',
+    how:'Side plank on elbow, raise the top leg 20 cm, hold 2 s, lower. Keep the pelvis stacked.' },
+  { name:'Wall lean posture drill', tags:['trunk'], type:'Drill',
+    sets:'4 × 20 s', reps:'lean from ankles', freq:'3×/week', dur:'8 min',
+    why:'Trains the correct ~5–10° forward lean from the ankles (not the waist), reducing braking and saving energy.',
+    how:'Stand 1 m from a wall, lean forward from the ankles until hands touch. Hold, then walk out the lean into a run.' },
+  { name:'Dead bug', tags:['trunk'], type:'Strength',
+    sets:'3 × 12', reps:'per side', freq:'3×/week', dur:'10 min',
+    why:'Builds anti-extension core control so the torso stays tall and stable while the legs move.',
+    how:'On your back, arms up, legs in tabletop. Lower opposite arm and leg slowly, return, switch.' },
+  { name:'Pogo hops', tags:['bounce'], type:'Drill',
+    sets:'3 × 30 s', reps:'stiff ankles', freq:'2×/week', dur:'8 min',
+    why:'Trains a low, elastic bounce — reducing wasted vertical oscillation and energy cost.',
+    how:'Hop in place with straight-ish legs, minimal knee bend, using only ankle stiffness. Land softly.' },
+  { name:'Bounding drills', tags:['bounce'], type:'Drill',
+    sets:'4 × 30 m', reps:'walk back', freq:'1×/week', dur:'12 min',
+    why:'Develops horizontal (not vertical) power, teaching the body to convert bounce into forward speed.',
+    how:'Exaggerated running leaps, driving forward and up at ~45°, landing on the ball of the foot.' },
+  { name:'Split squats', tags:['asymmetry','knee'], type:'Strength',
+    sets:'3 × 10', reps:'per leg', freq:'3×/week', dur:'15 min',
+    why:'Unilateral strength work exposes and corrects left/right differences in knee control and power.',
+    how:'Rear foot elevated on a bench, lower until front thigh is parallel, drive up through the front heel.' },
+  { name:'Single-leg balance work', tags:['asymmetry'], type:'Strength',
+    sets:'3 × 30 s', reps:'per leg', freq:'4×/week', dur:'8 min',
+    why:'Improves proprioception and stance-phase stability, smoothing out asymmetries.',
+    how:'Stand on one leg, eyes forward, knee soft. Progress to eyes closed or on a cushion.' },
+  { name:'Step-downs', tags:['knee'], type:'Strength',
+    sets:'3 × 12', reps:'per leg', freq:'3×/week', dur:'12 min',
+    why:'Strengthens the quadriceps eccentrically — key for controlling knee flexion at landing.',
+    how:'Stand on a 20 cm box, lower the other foot slowly to the floor, return. Control the descent.' },
+  { name:'Eccentric calf raises', tags:['pronation','ankle'], type:'Strength',
+    sets:'3 × 15', reps:'slow lowering', freq:'4×/week', dur:'10 min',
+    why:'Strengthens the calf complex that controls pronation and stores elastic energy at landing.',
+    how:'Rise onto toes on a step, then lower over 3 s below the step edge. Hold the top 1 s.' },
+  { name:'Short-foot exercise', tags:['pronation'], type:'Strength',
+    sets:'3 × 15', reps:'per foot', freq:'5×/week', dur:'6 min',
+    why:'Trains the intrinsic foot muscles to support the arch, reducing excessive pronation.',
+    how:'Sitting, shorten the foot by pulling the ball of the foot toward the heel without curling toes. Hold 3 s.' },
+  { name:'Arm swing drills', tags:['arm'], type:'Drill',
+    sets:'3 × 60 s', reps:'seated', freq:'3×/week', dur:'6 min',
+    why:'A relaxed, compact arm swing (elbow ~90°) sets the rhythm for the legs and reduces wasted upper-body energy.',
+    how:'Sit on a bench, elbows at 90°, swing arms from the shoulder, hands brushing hips. Keep shoulders relaxed.' },
+  { name:'Shoulder mobility', tags:['arm'], type:'Mobility',
+    sets:'2 × 10', reps:'each arm', freq:'3×/week', dur:'6 min',
+    why:'Tight shoulders cause a tense, high arm carriage that wastes energy and disrupts rhythm.',
+    how:'Arm circles, wall slides and band pull-aparts with slow, controlled range.' },
+];
+
+/* ---------- Insight rules (evidence-based, severity-tagged) ---------- */
+function generateInsights(m){
+  const out=[];
+  const add=(sev,icon,title,desc,evidence,tags)=>out.push({sev,icon,title,desc,evidence,tags});
+  const fmt=n=>n==null?'n/a':(Math.round(n*10)/10);
+
+  if(m.cadence!=null){
+    if(m.cadence<165) add('high','🐢','Low cadence',`At ${fmt(m.cadence)} spm your step rate is well below the 175–185 spm efficiency zone. Each step is likely too long, increasing braking forces and ground-contact time.`,
+      `Cadence ${fmt(m.cadence)} spm · target 175–185`, ['cadence']);
+    else if(m.cadence<175) add('medium','🐢','Cadence slightly low',`At ${fmt(m.cadence)} spm you are just under the efficiency zone. A small cadence bump will shorten your stride and reduce impact.`,
+      `Cadence ${fmt(m.cadence)} spm · target 175–185`, ['cadence']);
+  }
+  if(m.gct!=null){
+    if(m.gct>280) add('high','🦶','Long ground-contact time',`Average contact of ${fmt(m.gct)} ms means you are spending too long pushing off each step — a sign of overstriding and low elastic return.`,
+      `Ground contact ${fmt(m.gct)} ms · target < 250`, ['gct','overstride']);
+    else if(m.gct>250) add('medium','🦶','Ground contact slightly long',`At ${fmt(m.gct)} ms your contact time is a little high; quicker, springier steps will save energy.`,
+      `Ground contact ${fmt(m.gct)} ms · target < 250`, ['gct','overstride']);
+  }
+  if(m.landingLead!=null){
+    if(m.landingLead>15) add('high','📏','Overstriding',`Your foot lands ${fmt(m.landingLead)}% of your height ahead of your hips. Each landing acts as a brake; shortening the stride will cut impact and ground-contact time.`,
+      `Landing lead ${fmt(m.landingLead)}% of height · target < 10%`, ['overstride']);
+    else if(m.landingLead>10) add('medium','📏','Slight overstriding',`Your foot lands ${fmt(m.landingLead)}% of your height ahead of the hips — a little long. Aim to land closer under your centre of mass.`,
+      `Landing lead ${fmt(m.landingLead)}% of height · target < 10%`, ['overstride']);
+  }
+  if(m.footStrike==='heel') add('high','👠','Heel-strike landing',`The majority of your footfalls land heel-first, well ahead of your body. This creates a braking force each step and raises injury risk.`,
+      `Foot strike: heel (${m.footStrikePct}% of steps)`, ['heelstrike']);
+  else if(m.footStrike==='forefoot') add('low','🦶','Forefoot landing',`You land on the forefoot — great for elastic energy, but watch calf load if you feel tightness.`,
+      `Foot strike: forefoot`, ['heelstrike']);
+  else if(m.footStrike==='midfoot') add('low','🦶','Midfoot landing',`You land under your centre of mass with a midfoot strike — the most efficient pattern.`,
+      `Foot strike: midfoot`, []);
+  if(m.trunkLean!=null){
+    if(m.trunkLean>15) add('medium','🚶','Excessive forward lean',`Torso lean of ${fmt(m.trunkLean)}° is past the efficient 5–10° range and can strain the lower back and hips.`,
+      `Trunk lean ${fmt(m.trunkLean)}° · target 5–10°`, ['trunk']);
+    else if(m.trunkLean<3) add('low','🚶','Very upright posture',`Your torso is nearly vertical (${fmt(m.trunkLean)}°). A slight forward lean from the ankles helps momentum.`,
+      `Trunk lean ${fmt(m.trunkLean)}° · target 5–10°`, ['trunk']);
+  }
+  if(m.voPct!=null){
+    if(m.voPct>6) add('medium','🦘','Excessive vertical bounce',`You bounce ~${fmt(m.voCm)} cm per step (${fmt(m.voPct)}% of height). That vertical motion is wasted energy that should go forward.`,
+      `Vertical oscillation ${fmt(m.voCm)} cm · target 3–5% of height`, ['bounce']);
+    else if(m.voPct<2.5) add('low','🦘','Low vertical oscillation',`Your bounce is minimal — efficient, though make sure you are not shuffling.`,
+      `Vertical oscillation ${fmt(m.voCm)} cm`, ['bounce']);
+  }
+  if(m.hipDrop!=null){
+    if(m.hipDrop>3) add('high','🦵','Hip drop (weak glute medius)',`Pelvic tilt of ${fmt(m.hipDrop)}° during stance indicates the hip on the support side is sagging — a classic weak gluteus medius pattern that wastes energy and stresses the knee.`,
+      `Pelvic tilt ${fmt(m.hipDrop)}° · target < 2°`, ['hipdrop']);
+    else if(m.hipDrop>2) add('medium','🦵','Mild hip drop',`Pelvic tilt of ${fmt(m.hipDrop)}° is slightly above the ideal. A little glute medius work will stabilise your pelvis.`,
+      `Pelvic tilt ${fmt(m.hipDrop)}° · target < 2°`, ['hipdrop']);
+  }
+  if(m.asymmetry!=null){
+    if(m.asymmetry>12) add('medium','⚖️','Left/right asymmetry',`Your left and right sides move differently (${fmt(m.asymmetry)}% asymmetry). Unilateral strength work will even you out and reduce injury risk.`,
+      `Asymmetry ${fmt(m.asymmetry)}% · target < 8%`, ['asymmetry']);
+  }
+  if(m.kneeFlex!=null){
+    if(m.kneeFlex<25) add('medium','🦿','Stiff knee at landing',`Knee flexion of only ${fmt(m.kneeFlex)}° at contact means you are landing on a nearly straight leg — a hallmark of overstriding that spikes impact.`,
+      `Knee flexion at contact ${fmt(m.kneeFlex)}° · target 30–45°`, ['knee','overstride']);
+  }
+  if(m.pronation!=null){
+    if(m.pronation>6) add('medium','🦶','Excessive pronation',`Ankle roll of ${fmt(m.pronation)}° at stance suggests your foot is collapsing inward, which can strain the shin and knee.`,
+      `Ankle roll ${fmt(m.pronation)}° · target < 4°`, ['pronation']);
+  }
+  if(m.armSwing!=null){
+    if(m.armSwing<40) add('low','💪','Limited arm swing',`Elbow range of only ${fmt(m.armSwing)}° means your arms are not driving the rhythm. A compact, active swing helps cadence.`,
+      `Elbow swing range ${fmt(m.armSwing)}° · target 60–90°`, ['arm']);
+  }
+  if(out.length===0) add('low','🏆','Solid, efficient form',`No major deviations detected. Maintain this pattern and focus on progressive volume.`,
+      `All metrics within target ranges`, []);
+  return out;
+}
+
+/* ---------- Form scoring ---------- */
+function scoreRange(v,lo,hi,badLo,badHi){
+  if(v>=lo&&v<=hi) return 100;
+  if(v<lo) return v<=badLo?0:100*(v-badLo)/(lo-badLo);
+  return v>=badHi?0:100*(badHi-v)/(badHi-hi);
+}
+function scoreForm(m){
+  const s={
+    cadence:   m.cadence==null?50:scoreRange(m.cadence,175,185,150,200),
+    gct:       m.gct==null?50:scoreRange(m.gct,200,250,340,400),
+    footStrike:m.footStrike==='midfoot'?95:m.footStrike==='forefoot'?80:m.footStrike==='heel'?50:60,
+    lead:      m.landingLead==null?50:scoreRange(m.landingLead,0,10,20,25),
+    trunk:     m.trunkLean==null?50:scoreRange(m.trunkLean,5,10,20,25),
+    vo:        m.voPct==null?50:scoreRange(m.voPct,3,5,9,11),
+    hip:       m.hipDrop==null?50:scoreRange(m.hipDrop,0,2,6,8),
+    sym:       m.asymmetry==null?50:scoreRange(m.asymmetry,0,8,22,30),
+    knee:      m.kneeFlex==null?50:scoreRange(m.kneeFlex,30,45,12,18),
+    pron:      m.pronation==null?50:scoreRange(m.pronation,0,4,9,12),
+  };
+  const w={cadence:.18,gct:.14,footStrike:.14,lead:.10,trunk:.10,vo:.10,hip:.14,sym:.08,knee:.06,pron:.06};
+  let t=0,ww=0; for(const k in w){ t+=s[k]*w[k]; ww+=w[k]; }
+  return { total:Math.round(t/ww), parts:s };
+}
+
+/* ---------- Side-view analysis ---------- */
+function analyzeSide(frames, heightCm, fps){
+  const visL=avgVis(frames,[LM.lSh,LM.lEl,LM.lWr,LM.lHip,LM.lKn,LM.lAnk,LM.lHeel,LM.lFoot]);
+  const visR=avgVis(frames,[LM.rSh,LM.rEl,LM.rWr,LM.rHip,LM.rKn,LM.rAnk,LM.rHeel,LM.rFoot]);
+  const useL=visL>=visR;
+  const S=useL?{hip:LM.lHip,kn:LM.lKn,ank:LM.lAnk,heel:LM.lHeel,foot:LM.lFoot,sh:LM.lSh,el:LM.lEl,wr:LM.lWr}
+              :{hip:LM.rHip,kn:LM.rKn,ank:LM.rAnk,heel:LM.rHeel,foot:LM.rFoot,sh:LM.rSh,el:LM.rEl,wr:LM.rWr};
+
+  // Height estimate: lowest body point (foot/heel/ankle) to nose; nose ≈ 87% of height
+  const noseYs=[]; let lowest=1;
+  for(const f of frames){
+    const n=f.lm[LM.nose];
+    if(n.visibility>0.5) noseYs.push(n.y);
+    for(const i of [S.ank,S.heel,S.foot]) if(f.lm[i].visibility>0.4) lowest=Math.min(lowest,f.lm[i].y);
+  }
+  const noseY=median(noseYs);
+  const heightPx=(lowest<1&&noseY!=null)?(lowest-noseY)/0.87:null;
+  const scale=heightPx>0?heightCm/heightPx:null;
+
+  // Foot-strike detection: ankle y (y grows downward) → negate so strikes are minima
+  const ys=frames.map(f=>f.lm[S.ank].y);
+  const sm=smooth(ys,3);
+  const sig=sm.map(v=>-v);
+  const minY=Math.min(...sig), maxY=Math.max(...sig);
+  const strikes=findMinima(sig,(maxY-minY)*0.12,Math.max(2,0.12*fps));
+  const dt=frames.length>1?frames[frames.length-1].t-frames[0].t:0;
+  // each strike = one footfall of the tracked foot; cadence counts both feet
+  const cadence=strikes.length>1&&dt>0?2*strikes.length/dt*60:null;
+
+  // Per-strike: ground-contact time, foot-strike type, knee flexion, landing lead
+  const band=minY+0.5*(maxY-minY);
+  const gcts=[], types=[], kneeFlex=[], leads=[];
+  for(const si of strikes){
+    let ic=si, to=si;
+    while(ic>0&&sig[ic-1]<band) ic--;
+    while(to<sig.length-1&&sig[to+1]<band) to++;
+    gcts.push((to-ic)*1000/fps);
+    const f0=frames[ic];
+    const heel=f0.lm[S.heel], foot=f0.lm[S.foot];
+    if(heel.visibility>0.3&&foot.visibility>0.3){
+      if(heel.y>foot.y+0.012) types.push('heel');
+      else if(foot.y>heel.y+0.012) types.push('forefoot');
+      else types.push('midfoot');
+    }
+    const h=frames[si].lm[S.hip],k=frames[si].lm[S.kn],a=frames[si].lm[S.ank];
+    if(h.visibility>0.4&&k.visibility>0.4&&a.visibility>0.4) kneeFlex.push(angleDeg(h,k,a));
+    const hp=mid(frames[si].lm[LM.lHip],frames[si].lm[LM.rHip]);
+    if(hp.v>0.4&&a.visibility>0.4&&heightPx) leads.push(Math.abs(a.x-hp.x)/heightPx*100);
+  }
+  const gct=mean(gcts);
+  const footStrikePct={};
+  types.forEach(t=>footStrikePct[t]=(footStrikePct[t]||0)+1);
+  const footStrike=types.length?types.sort((a,b)=>footStrikePct[b]-footStrikePct[a])[0]:null;
+
+  const leans=[];
+  for(const f of frames){
+    const sh=mid(f.lm[LM.lSh],f.lm[LM.rSh]), hp=mid(f.lm[LM.lHip],f.lm[LM.rHip]);
+    if(sh.v>0.4&&hp.v>0.4) leans.push(Math.atan2(Math.abs(sh.x-hp.x),Math.abs(sh.y-hp.y))*180/Math.PI);
+  }
+
+  const hipYs=frames.map(f=>mid(f.lm[LM.lHip],f.lm[LM.rHip]).y).filter(v=>v>0);
+  const voPx=Math.max(...hipYs)-Math.min(...hipYs);
+  const voPct=heightPx>0?voPx/heightPx*100:null;
+  const voCm=scale?voPx*scale:null;
+
+  const elAngles=[];
+  for(const f of frames){
+    const sh=f.lm[S.sh],el=f.lm[S.el],wr=f.lm[S.wr];
+    if(sh.visibility>0.4&&el.visibility>0.4&&wr.visibility>0.4) elAngles.push(angleDeg(sh,el,wr));
+  }
+  const armSwing=elAngles.length>2?Math.max(...elAngles)-Math.min(...elAngles):null;
+
+  return { side:useL?'left':'right', heightPx, scale, cadence, gct, landingLead:mean(leads), footStrike,
+           footStrikePct:types.length?Math.round(100*Math.max(...Object.values(footStrikePct))/types.length):0,
+           kneeFlex:mean(kneeFlex), trunkLean:mean(leans), voPct, voCm, armSwing };
+}
+
+/* ---------- Back-view analysis ---------- */
+function analyzeBack(frames, heightPx, fps){
+  const pct=(a,p)=>{ const s=[...a].sort((x,y)=>x-y); return s[Math.min(s.length-1,Math.floor(s.length*p))]; };
+  // Hip drop: pelvic tilt, split by which hip is lower (stance side)
+  const tiltL=[], tiltR=[];
+  for(const f of frames){
+    const l=f.lm[LM.lHip], r=f.lm[LM.rHip];
+    if(l.visibility>0.4&&r.visibility>0.4){
+      const tilt=Math.atan2(Math.abs(l.y-r.y),Math.abs(l.x-r.x))*180/Math.PI;
+      if(l.y>r.y) tiltL.push(tilt); else if(r.y>l.y) tiltR.push(tilt);
+    }
+  }
+  const hipDropL=tiltL.length?pct(tiltL,.9):0, hipDropR=tiltR.length?pct(tiltR,.9):0;
+  const hipDrop=Math.max(hipDropL,hipDropR);
+  const asymmetry=Math.max(hipDropL,hipDropR)>0?Math.abs(hipDropL-hipDropR)/Math.max(hipDropL,hipDropR)*100:0;
+
+  const hipXs=frames.map(f=>mid(f.lm[LM.lHip],f.lm[LM.rHip]).x).filter(v=>v>0);
+  const swayPct=heightPx>0?(Math.max(...hipXs)-Math.min(...hipXs))/heightPx*100:null;
+
+  // Pronation: ankle→foot-index angle from vertical at stance
+  const pron=[];
+  for(const side of ['L','R']){
+    const ank=side==='L'?LM.lAnk:LM.rAnk, foot=side==='L'?LM.lFoot:LM.rFoot;
+    const ys=frames.map(f=>f.lm[ank].y);
+    const sm=smooth(ys,3);
+    const sig=sm.map(v=>-v);
+    const minY=Math.min(...sig), maxY=Math.max(...sig);
+    const strikes=findMinima(sig,(maxY-minY)*0.12,Math.max(2,0.12*fps));
+    for(const si of strikes){
+      const a=frames[si].lm[ank], ft=frames[si].lm[foot];
+      if(a.visibility>0.4&&ft.visibility>0.4) pron.push(Math.atan2(Math.abs(ft.x-a.x),Math.abs(ft.y-a.y))*180/Math.PI);
+    }
+  }
+  const pronation=mean(pron);
+
+  return { hipDrop, hipDropL, hipDropR, swayPct, pronation, asymmetry };
+}
+/* ---------- Exercise recommendation ---------- */
+function recommendExercises(insights){
+  const sevRank={high:0,medium:1,low:2};
+  const tagSev={};
+  for(const ins of insights) for(const t of ins.tags){
+    if(!(t in tagSev)||sevRank[ins.sev]<sevRank[tagSev[t]]) tagSev[t]=ins.sev;
+  }
+  const picked=[];
+  for(const ex of EX_DB){
+    const sevs=ex.tags.map(t=>tagSev[t]).filter(Boolean);
+    if(!sevs.length) continue;
+    const sev=sevs.sort((a,b)=>sevRank[a]-sevRank[b])[0];
+    picked.push({...ex, sev});
+  }
+  picked.sort((a,b)=>sevRank[a.sev]-sevRank[b.sev]);
+  return picked;
+}
+
+/* ---------- Weekly plan ---------- */
+function buildPlan(exs){
+  const strength=exs.filter(e=>e.type==='Strength').slice(0,3);
+  const drills=exs.filter(e=>e.type==='Drill').slice(0,3);
+  const mobility=exs.filter(e=>e.type==='Mobility').slice(0,2);
+  const runs=exs.filter(e=>e.type==='Run').slice(0,1);
+  const days=[
+    {name:'Strength day (Mon/Thu)', items:strength.map(e=>e.name)},
+    {name:'Drill day (Tue/Fri)', items:drills.map(e=>e.name)},
+    {name:'Mobility (daily, 10 min)', items:mobility.map(e=>e.name)},
+  ];
+  if(runs.length) days.push({name:'Quality run (Sat)', items:runs.map(e=>e.name)});
+  return days.filter(d=>d.items.length);
+}
+
+/* ============================================================
+   MEDIAPIPE POSE LANDMARKER — model loading & frame processing
+   ============================================================ */
+let poseLandmarker=null, vision=null;
+const WASM='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/wasm';
+const MODEL='https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task';
+
+async function loadModel(){
+  if(poseLandmarker) return;
+  vision=await FilesetResolver.forVisionTasks(WASM);
+  poseLandmarker=await PoseLandmarker.createFromOptions(vision,{
+    baseOptions:{ modelAssetPath:MODEL, delegate:'GPU' },
+    runningMode:'VIDEO', numPoses:1,
+    minPoseDetectionConfidence:.5, minPosePresenceConfidence:.5, minTrackingConfidence:.5,
+  });
+}
+
+function waitSeek(v){ return new Promise(res=>{ if(Math.abs(v.currentTime-v._t)<.01) return res();
+  const h=()=>{ v.removeEventListener('seeked',h); res(); }; v.addEventListener('seeked',h); }); }
+
+async function processVideo(video, canvas, fps, onProgress){
+  await new Promise(res=>{ if(video.readyState>=2) return res(); video.addEventListener('loadeddata',res,{once:true}); });
+  const dur=video.duration;
+  if(!isFinite(dur)||dur<=0) throw new Error('Could not read video duration.');
+  const n=Math.min(Math.floor(dur*fps),300);
+  const ctx=canvas.getContext('2d');
+  const drawing=new DrawingUtils(ctx);
+  const frames=[];
+  for(let i=0;i<n;i++){
+    video._t=i/fps; video.currentTime=video._t;
+    await waitSeek(video);
+    const res=poseLandmarker.detectForVideo(video,performance.now());
+    ctx.drawImage(video,0,0,canvas.width,canvas.height);
+    if(res.landmarks&&res.landmarks.length){
+      const lm=res.landmarks[0];
+      drawing.drawConnectors(lm,PoseLandmarker.POSE_CONNECTIONS,{color:'#22d3ee',lineWidth:3});
+      drawing.drawLandmarks(lm,{color:'#fbbf24',lineWidth:2,radius:3});
+      frames.push({t:i/fps,lm});
+    }
+    onProgress&&onProgress(i+1,n);
+    await new Promise(r=>setTimeout(r,0)); // let UI breathe
+  }
+  return frames;
+}
+
+/* ============================================================
+   UI wiring
+   ============================================================ */
+const $=id=>document.getElementById(id);
+const heightIn=$('height'), fSide=$('fSide'), fBack=$('fBack'), vSide=$('vSide'), vBack=$('vBack'),
+      cSide=$('cSide'), cBack=$('cBack'), btnAnalyze=$('btnAnalyze'), btnDemo=$('btnDemo'),
+      pwrap=$('progressWrap'), pfill=$('pfill'), pstatus=$('pstatus'), errBox=$('errBox'),
+      results=$('results');
+
+let sideFile=null, backFile=null;
+
+function bindDrop(dropEl,fileEl,videoEl,canvasEl,cb){
+  dropEl.addEventListener('click',()=>fileEl.click());
+  fileEl.addEventListener('change',()=>{
+    if(!fileEl.files.length) return;
+    const f=fileEl.files[0];
+    videoEl.src=URL.createObjectURL(f);
+    videoEl.onloadedmetadata=()=>{ videoEl.currentTime=0.01; };
+    cb(f);
+  });
+}
+bindDrop($('dropSide'),fSide,vSide,cSide,f=>{ sideFile=f; btnAnalyze.disabled=!(sideFile&&backFile); });
+bindDrop($('dropBack'),fBack,vBack,cBack,f=>{ backFile=f; btnAnalyze.disabled=!(sideFile&&backFile); });
+
+function setProgress(p,msg){ pwrap.classList.add('show'); pfill.style.width=p+'%'; pstatus.textContent=msg; }
+function showErr(msg){ errBox.textContent=msg; errBox.classList.add('show'); }
+function clearErr(){ errBox.classList.remove('show'); }
+
+async function runPipeline(sideFrames, backFrames, heightCm){
+  clearErr();
+  setProgress(5,'Loading pose model (first run downloads ~9 MB)…');
+  try{ await loadModel(); }catch(e){ showErr('Could not load the pose model. Check your internet connection and reload.'); return; }
+
+  const fps=30;
+  let sideM=null, backM=null;
+  if(sideFrames){
+    setProgress(10,'Analysing side view…');
+    sideM=analyzeSide(sideFrames,heightCm,fps);
+  }
+  if(backFrames){
+    setProgress(55,'Analysing back view…');
+    backM=analyzeBack(backFrames,sideM?sideM.heightPx:null,fps);
+  }
+  setProgress(85,'Scoring form & building recommendations…');
+
+  const m={ ...(sideM||{}), ...(backM||{}) };
+  const score=scoreForm(m);
+  const insights=generateInsights(m);
+  const exs=recommendExercises(insights);
+  const plan=buildPlan(exs);
+  setProgress(100,'Done');
+  render(m,score,insights,exs,plan);
+}
+
+function render(m,score,insights,exs,plan){
+  results.classList.add('show');
+  results.scrollIntoView({behavior:'smooth'});
+  $('scoreNum').textContent=score.total;
+  $('ring').style.setProperty('--p',score.total+'%');
+  const verdict=score.total>=85?'Excellent form — small refinements will unlock the next level.'
+    :score.total>=70?'Good foundation — a few targeted fixes will pay off quickly.'
+    :score.total>=55?'Workable form with clear optimisation potential — the plan below targets your biggest levers.'
+    :'Significant optimisation potential — prioritise the high-severity items below.';
+  $('verdict').innerHTML=`<b>${verdict}</b><br><span style="font-size:.85rem;color:var(--mut)">Score is a weighted blend of cadence, ground contact, foot strike, trunk lean, vertical oscillation, hip stability, symmetry, knee flexion and pronation.</span>`;
+
+  const cards=[
+    ['Cadence',m.cadence==null?'—':Math.round(m.cadence),'spm',m.cadence==null?0:m.cadence<170?2:m.cadence<175?1:0],
+    ['Landing lead',m.landingLead==null?'—':m.landingLead.toFixed(1),'% hgt',m.landingLead==null?0:m.landingLead>15?2:m.landingLead>10?1:0],
+    ['Ground contact',m.gct==null?'—':Math.round(m.gct),'ms',m.gct==null?0:m.gct>280?2:m.gct>250?1:0],
+    ['Foot strike',m.footStrike||'—','',m.footStrike==='heel'?2:0],
+    ['Trunk lean',m.trunkLean==null?'—':m.trunkLean.toFixed(1),'°',m.trunkLean==null?0:m.trunkLean>15?2:m.trunkLean<3?1:0],
+    ['Vertical osc.',m.voCm==null?'—':m.voCm.toFixed(1),'cm',m.voPct==null?0:m.voPct>6?2:m.voPct<2.5?1:0],
+    ['Hip drop',m.hipDrop==null?'—':m.hipDrop.toFixed(1),'°',m.hipDrop==null?0:m.hipDrop>3?2:m.hipDrop>2?1:0],
+    ['Asymmetry',m.asymmetry==null?'—':m.asymmetry.toFixed(0),'%',m.asymmetry==null?0:m.asymmetry>12?2:m.asymmetry>8?1:0],
+    ['Knee flex @contact',m.kneeFlex==null?'—':m.kneeFlex.toFixed(0),'°',m.kneeFlex==null?0:m.kneeFlex<25?2:0],
+    ['Pronation',m.pronation==null?'—':m.pronation.toFixed(1),'°',m.pronation==null?0:m.pronation>6?2:0],
+  ];
+  $('metrics').innerHTML=cards.map(([k,v,u,st])=>
+    `<div class="mcard ${st===2?'bad':st===1?'warn':'ok'}"><div class="v">${v}</div><div class="u">${u}</div><div class="k">${k}</div></div>`).join('');
+
+  $('insights').innerHTML=insights.map(i=>
+    `<div class="insight ${i.sev}"><div class="ic">${i.icon}</div><div>
+       <h4>${i.title}<span class="sev">${i.sev.toUpperCase()}</span></h4>
+       <p>${i.desc}</p><div class="ev">📐 ${i.evidence}</div>
+       ${i.tags.length?`<div>${i.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>`:''}
+     </div></div>`).join('');
+
+  $('exercises').innerHTML=exs.map(e=>
+    `<div class="ex"><div class="ex-head"><h4>${e.name}</h4><span class="prio ${e.sev}">${e.sev.toUpperCase()} PRIORITY</span></div>
+     <div class="why">🎯 <b>Why:</b> ${e.why}</div>
+     <div class="how">📋 <b>How:</b> ${e.how}</div>
+     <div class="ex-meta"><span>${e.sets}</span><span>${e.reps}</span><span>${e.freq}</span><span>${e.dur}</span></div>
+     </div>`).join('');
+
+  $('plan').innerHTML=plan.map(d=>
+    `<div class="day"><h5>${d.name}</h5><ul>${d.items.map(i=>`<li>• ${i}</li>`).join('')}</ul></div>`).join('');
+}
+
+/* ---------- Demo mode: synthetic gait with known issues ---------- */
+function synthFrames(view,o){
+  const fps=30,dur=10,n=fps*dur,f=o.cadence/120; // per-foot step frequency
+  const leg=0.24,torso=0.30,ground=0.86,baseHip=ground-leg-0.02,hipW=0.06;
+  const sf=o.gct||0.40; // stance fraction of the step cycle
+  const smoothstep=t=>t<=0?0:t>=1?1:t*t*(3-2*t);
+  const frames=[];
+  for(let i=0;i<n;i++){
+    const t=i/fps, lm=Array.from({length:33},()=>({x:.5,y:.5,z:0,visibility:.99}));
+    // bounce: fraction of body height (e.g. 0.04 = 4%)
+    const hipY=baseHip-o.bounce*0.5*(1-Math.cos(4*Math.PI*f*t));
+    const hipX=.5+.02*Math.sin(2*Math.PI*f*t);
+    const phL=2*Math.PI*f*t, phR=phL+Math.PI;
+    const set=(idx,x,y)=>{ lm[idx].x=x; lm[idx].y=y; };
+    // per-foot kinematics: lift (0 in stance, 1 at mid-swing), stance phase p (0..1)
+    const kin=ph=>{
+      const w=((ph+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI; // wrap to [-π,π]
+      const a=Math.abs(w);
+      const lift=a<sf*Math.PI?0:smoothstep((a-sf*Math.PI)/((1-sf)*Math.PI));
+      const p=Math.max(0,Math.min(1,(w+sf*Math.PI)/(2*sf*Math.PI)));
+      const vDip=a<sf*Math.PI?0.012*(1-a/(sf*Math.PI)):0;
+      return {lift,p,vDip};
+    };
+    if(view==='side'){
+      for(const [k,ank,heel,foot,kn] of [[0,LM.lAnk,LM.lHeel,LM.lFoot,LM.lKn],[1,LM.rAnk,LM.rHeel,LM.rFoot,LM.rKn]]){
+        const ph=k?phR:phL, {lift,p,vDip}=kin(ph);
+        const ay=0.78-0.15*lift+vDip;
+        const ax=hipX+o.lead*Math.cos(ph+sf*Math.PI);
+        const rollH=o.heelStrike?-0.03*Math.max(0,2*p-1):-0.03*Math.max(0,1-2*p);
+        const rollT=o.heelStrike?-0.03*Math.max(0,1-2*p):-0.03*Math.max(0,2*p-1);
+        set(ank,ax,ay);
+        set(heel,ax-0.012,ground-0.15*lift+rollH);
+        set(foot,ax+0.012,ground-0.15*lift+rollT);
+        set(kn,(hipX+ax)/2+(o.heelStrike?0.015:0.03),(hipY+ay)/2+0.01);
+      }
+      set(LM.lHip,hipX-.02,hipY); set(LM.rHip,hipX+.02,hipY);
+      const shX=hipX+Math.tan(o.lean*Math.PI/180)*torso, shY=hipY-torso;
+      set(LM.lSh,shX-.02,shY); set(LM.rSh,shX+.02,shY);
+      set(LM.nose,shX+.02,shY-0.12);
+      for(const [k,wr,el] of [[0,LM.lWr,LM.lEl],[1,LM.rWr,LM.rEl]]){
+        const sw=2*Math.PI*f*t+k*Math.PI;
+        const alpha=20*Math.PI/180*Math.sin(sw);
+        const beta=(100-50*Math.abs(Math.sin(sw)))*Math.PI/180;
+        const ex=shX+0.10*Math.sin(alpha), ey=shY+0.10*Math.cos(alpha);
+        set(el,ex,ey);
+        set(wr,ex+0.10*Math.sin(alpha+beta),ey+0.10*Math.cos(alpha+beta));
+      }
+    } else {
+      const sway=.02*Math.sin(2*Math.PI*f*t);
+      const dropAmp=Math.tan(o.hipDrop*Math.PI/180)*hipW;
+      const lDrop=dropAmp*Math.max(0,Math.cos(phL));
+      const rDrop=dropAmp*(o.asym?0.85:1)*Math.max(0,Math.cos(phR));
+      set(LM.lHip,.5+sway-hipW/2,hipY+lDrop); set(LM.rHip,.5+sway+hipW/2,hipY+rDrop);
+      for(const [k,ank,heel,foot,kn,hip] of [[0,LM.lAnk,LM.lHeel,LM.lFoot,LM.lKn,LM.lHip],[1,LM.rAnk,LM.rHeel,LM.rFoot,LM.rKn,LM.rHip]]){
+        const ph=k?phR:phL, {lift,p,vDip}=kin(ph);
+        const ay=0.78-0.15*lift+vDip, ax=lm[hip].x+(k?0.07:-0.07);
+        const pronOff=Math.tan(o.pron*Math.PI/180)*0.068*Math.max(0,Math.cos(ph));
+        const rollH=o.heelStrike?-0.03*Math.max(0,2*p-1):-0.03*Math.max(0,1-2*p);
+        const rollT=o.heelStrike?-0.03*Math.max(0,1-2*p):-0.03*Math.max(0,2*p-1);
+        set(ank,ax,ay);
+        set(heel,ax+pronOff*0.5,ground-0.15*lift+rollH);
+        set(foot,ax+pronOff,ground-0.15*lift+rollT);
+        set(kn,ax,(lm[hip].y+ay)/2+0.01);
+      }
+      set(LM.lSh,.5+sway-hipW/2,hipY-torso); set(LM.rSh,.5+sway+hipW/2,hipY-torso);
+      set(LM.nose,.5+sway,hipY-torso-0.12);
+    }
+    frames.push({t,lm});
+  }
+  return frames;
+}
+
+btnDemo.addEventListener('click',async()=>{
+  clearErr();
+  setProgress(5,'Generating demo gait data…');
+  const o={cadence:162,heelStrike:true,hipDrop:3.5,lean:12,bounce:0.06,pron:5,asym:true,gct:0.48,lead:0.12};
+  const sideFrames=synthFrames('side',o), backFrames=synthFrames('back',o);
+  await runPipeline(sideFrames,backFrames,parseFloat(heightIn.value)||175);
+});
+
+btnAnalyze.addEventListener('click',async()=>{
+  clearErr();
+  if(!sideFile&&!backFile){ showErr('Upload at least one video (side or back view).'); return; }
+  setProgress(5,'Loading pose model (first run downloads ~9 MB)…');
+  try{ await loadModel(); }catch(e){ showErr('Could not load the pose model. Check your internet connection and reload.'); return; }
+  const heightCm=parseFloat(heightIn.value)||175;
+  let sideFrames=null, backFrames=null;
+  try{
+    if(sideFile){
+      setProgress(8,'Processing side view…');
+      sideFrames=await processVideo(vSide,cSide,30,(i,n)=>setProgress(8+40*i/n,`Side view: frame ${i}/${n}`));
+    }
+    if(backFile){
+      setProgress(50,'Processing back view…');
+      backFrames=await processVideo(vBack,cBack,30,(i,n)=>setProgress(50+40*i/n,`Back view: frame ${i}/${n}`));
+    }
+  }catch(e){ showErr('Video processing failed: '+e.message); return; }
+  if((!sideFrames||!sideFrames.length)&&(!backFrames||!backFrames.length)){
+    showErr('No person detected in the videos. Make sure the runner is fully visible, well-lit, and the camera is steady.'); return;
+  }
+  await runPipeline(sideFrames,backFrames,heightCm);
+});
+</script>
+</body>
+</html>
