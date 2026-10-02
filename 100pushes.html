@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Road to 100 Push-Ups</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --accent: #f97316;
+    --accent2: #fb923c;
+    --green: #22c55e;
+    --blue: #38bdf8;
+    --red: #f87171;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --border: #2d3148;
+    --radius: 12px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, #1a1d27 0%, #0f1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 24px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  header .logo {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent), #dc2626);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+  }
+  header h1 { font-size: 1.4rem; font-weight: 700; }
+  header p { font-size: 0.82rem; color: var(--muted); margin-top: 2px; }
+  .header-right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+  .streak-badge {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 14px; font-size: 0.82rem;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .streak-badge .fire { font-size: 1.1rem; }
+
+  /* ── NAV TABS ── */
+  nav {
+    display: flex; gap: 4px; padding: 16px 24px 0;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  nav button {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 0.88rem; font-weight: 500;
+    padding: 8px 18px; border-radius: 8px 8px 0 0;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s; white-space: nowrap;
+  }
+  nav button.active {
+    color: var(--accent); border-bottom-color: var(--accent);
+    background: rgba(249,115,22,0.08);
+  }
+  nav button:hover:not(.active) { color: var(--text); background: var(--surface2); }
+
+  /* ── MAIN ── */
+  main { padding: 24px; max-width: 1100px; margin: 0 auto; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+  }
+  .card + .card { margin-top: 16px; }
+  .card h2 { font-size: 1rem; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .card h2 .icon { font-size: 1.1rem; }
+
+  /* ── GRID ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media(max-width: 700px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  /* ── STAT TILES ── */
+  .stat-tile {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px;
+    text-align: center;
+  }
+  .stat-tile .label { font-size: 0.76rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  .stat-tile .value { font-size: 2rem; font-weight: 700; margin: 6px 0 2px; }
+  .stat-tile .sub { font-size: 0.78rem; color: var(--muted); }
+  .stat-tile.accent .value { color: var(--accent); }
+  .stat-tile.green .value { color: var(--green); }
+  .stat-tile.blue .value { color: var(--blue); }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap { margin: 10px 0; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); margin-bottom: 6px; }
+  .progress-bar { height: 10px; background: var(--surface2); border-radius: 100px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.6s ease; }
+
+  /* ── MILESTONE TRACK ── */
+  .milestone-track { display: flex; gap: 0; margin: 8px 0; }
+  .milestone-step {
+    flex: 1; text-align: center; position: relative;
+    padding: 10px 4px 4px;
+  }
+  .milestone-step::before {
+    content: ''; position: absolute; top: 18px; left: 50%; right: -50%;
+    height: 3px; background: var(--border);
+    z-index: 0;
+  }
+  .milestone-step:last-child::before { display: none; }
+  .milestone-step .dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--surface2); border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 6px; font-size: 0.7rem; font-weight: 700;
+    position: relative; z-index: 1; transition: all 0.3s;
+  }
+  .milestone-step.done .dot {
+    background: var(--green); border-color: var(--green); color: #000;
+  }
+  .milestone-step.current .dot {
+    background: var(--accent); border-color: var(--accent); color: #000;
+    box-shadow: 0 0 0 4px rgba(249,115,22,0.25);
+  }
+  .milestone-step .ms-label { font-size: 0.68rem; color: var(--muted); }
+  .milestone-step .ms-val { font-size: 0.72rem; font-weight: 600; color: var(--text); }
+
+  /* ── FORMS ── */
+  label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+  input, select, textarea {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); border-radius: 8px; padding: 9px 12px; font-size: 0.9rem;
+    outline: none; transition: border-color 0.2s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 70px; }
+  .form-row { display: grid; gap: 12px; }
+  .form-row.cols-2 { grid-template-columns: 1fr 1fr; }
+  .form-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  @media(max-width: 600px) { .form-row.cols-2, .form-row.cols-3 { grid-template-columns: 1fr; } }
+  .form-group { display: flex; flex-direction: column; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    cursor: pointer; border: none; border-radius: 8px;
+    padding: 10px 20px; font-size: 0.88rem; font-weight: 600;
+    transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+  .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-danger { background: rgba(248,113,113,0.15); color: var(--red); border: 1px solid rgba(248,113,113,0.3); }
+  .btn-danger:hover { background: rgba(248,113,113,0.25); }
+  .btn-sm { padding: 6px 12px; font-size: 0.78rem; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+
+  /* ── TABLES ── */
+  .table-wrap { overflow-x: auto; margin-top: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th { text-align: left; padding: 10px 12px; color: var(--muted); font-weight: 500; font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* ── DAY WORKOUT CARD ── */
+  .workout-day {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px; margin-bottom: 10px;
+  }
+  .workout-day h3 { font-size: 0.92rem; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .day-badge {
+    font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 100px;
+    text-transform: uppercase; letter-spacing: .05em;
+  }
+  .day-a { background: rgba(56,189,248,0.15); color: var(--blue); }
+  .day-b { background: rgba(249,115,22,0.15); color: var(--accent); }
+  .day-c { background: rgba(34,197,94,0.15); color: var(--green); }
+  .workout-detail { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+  .workout-detail strong { color: var(--text); }
+
+  /* ── SET LOGGER ── */
+  .set-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .set-row .set-num { width: 28px; height: 28px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+  .set-row input { flex: 1; }
+  .set-row .done-check { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: all 0.2s; flex-shrink: 0; }
+  .set-row .done-check.checked { background: var(--green); border-color: var(--green); }
+
+  /* ── LOG ENTRIES ── */
+  .log-entry {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+  }
+  .log-entry:last-child { border-bottom: none; }
+  .log-date-badge {
+    flex-shrink: 0; width: 52px; text-align: center;
+    background: var(--surface2); border-radius: 8px; padding: 6px;
+  }
+  .log-date-badge .mon { font-size: 0.65rem; text-transform: uppercase; color: var(--muted); }
+  .log-date-badge .day { font-size: 1.3rem; font-weight: 700; line-height: 1; color: var(--accent); }
+  .log-info h4 { font-size: 0.88rem; font-weight: 600; margin-bottom: 4px; }
+  .log-info p { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+  .log-tags { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+  .tag { font-size: 0.7rem; padding: 2px 8px; border-radius: 100px; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); }
+  .tag.test { background: rgba(249,115,22,0.1); color: var(--accent); border-color: rgba(249,115,22,0.3); }
+
+  /* ── CHART CONTAINER ── */
+  .chart-container { position: relative; height: 260px; }
+
+  /* ── SCHEDULE TABLE ── */
+  .sched-month {
+    border-left: 3px solid var(--accent);
+    padding: 12px 16px; margin-bottom: 12px;
+    background: var(--surface2); border-radius: 0 8px 8px 0;
+  }
+  .sched-month h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; }
+  .sched-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .sched-cell { font-size: 0.8rem; }
+  .sched-cell .label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; margin-bottom: 3px; }
+  @media(max-width: 600px) { .sched-grid { grid-template-columns: 1fr; } }
+
+  /* ── TIPS ── */
+  .tip-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px; display: flex; gap: 12px;
+  }
+  .tip-card .tip-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .tip-card h4 { font-size: 0.88rem; font-weight: 600; margin-bottom: 4px; }
+  .tip-card p { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+  .tips-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+
+  /* ── TOASTS ── */
+  #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+  .toast {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 18px;
+    font-size: 0.85rem; max-width: 300px;
+    animation: slideIn 0.3s ease, fadeOut 0.4s ease 2.6s forwards;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .toast.success { border-left: 3px solid var(--green); }
+  .toast.info { border-left: 3px solid var(--blue); }
+  @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  @keyframes fadeOut { to { opacity: 0; transform: translateX(120%); } }
+
+  /* ── PROFILE SECTION ── */
+  .profile-avatar {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #dc2626);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem; flex-shrink: 0;
+  }
+  .profile-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+
+  /* ── MISC ── */
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 0.9rem; }
+  .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
+  .section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 12px; font-weight: 600; }
+  .badge-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 0.72rem; font-weight: 600; padding: 3px 10px; border-radius: 100px;
+  }
+  .badge-green { background: rgba(34,197,94,0.15); color: var(--green); }
+  .badge-orange { background: rgba(249,115,22,0.15); color: var(--accent); }
+  .badge-blue { background: rgba(56,189,248,0.15); color: var(--blue); }
+
+  .test-warning { background: rgba(249,115,22,0.08); border: 1px solid rgba(249,115,22,0.25); border-radius: 10px; padding: 12px 16px; font-size: 0.82rem; color: var(--muted); margin-bottom: 16px; }
+  .test-warning strong { color: var(--accent); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">💪</div>
+  <div>
+    <h1>Road to 100 Push-Ups</h1>
+    <p id="header-sub">Male · Age 45 · Current max: <strong id="hdr-max">23</strong> reps</p>
+  </div>
+  <div class="header-right">
+    <div class="streak-badge"><span class="fire">🔥</span> <span id="streak-count">0</span> day streak</div>
+  </div>
+</header>
+
+<nav>
+  <button class="active" data-tab="dashboard">📊 Dashboard</button>
+  <button data-tab="log">📝 Log Workout</button>
+  <button data-tab="schedule">📅 8-Month Plan</button>
+  <button data-tab="history">📖 History</button>
+  <button data-tab="progress">📈 Progress</button>
+  <button data-tab="tips">💡 Tips</button>
+  <button data-tab="settings">⚙️ Settings</button>
+</nav>
+
+<main>
+
+<!-- ═══════════ DASHBOARD ═══════════ -->
+<div class="tab-content active" id="tab-dashboard">
+  <div class="grid-3" style="margin-bottom:16px">
+    <div class="stat-tile accent">
+      <div class="label">Current Max</div>
+      <div class="value" id="dash-max">23</div>
+      <div class="sub">push-ups in one set</div>
+    </div>
+    <div class="stat-tile green">
+      <div class="label">Goal</div>
+      <div class="value">100</div>
+      <div class="sub">unbroken reps</div>
+    </div>
+    <div class="stat-tile blue">
+      <div class="label">Sessions Logged</div>
+      <div class="value" id="dash-sessions">0</div>
+      <div class="sub">total workouts</div>
+    </div>
+  </div>
+
+  <!-- Overall progress bar -->
+  <div class="card" style="margin-bottom:16px">
+    <h2><span class="icon">🎯</span> Overall Progress to 100</h2>
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span id="prog-start-label">23 reps (start)</span>
+        <span id="prog-pct">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+      <div class="progress-label" style="margin-top:4px">
+        <span></span><span style="color:var(--text)">Target: 100 reps</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <p class="section-title">Milestone Tracker</p>
+    <div class="milestone-track" id="milestone-track"></div>
+  </div>
+
+  <!-- Today's workout -->
+  <div class="grid-2">
+    <div class="card">
+      <h2><span class="icon">🗓️</span> Today's Session</h2>
+      <div id="today-workout-card">
+        <p style="color:var(--muted);font-size:0.85rem">Loading…</p>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="goToLog()">▶ Log Today's Workout</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2><span class="icon">📅</span> Weekly Summary</h2>
+      <div id="weekly-summary">
+        <p style="color:var(--muted);font-size:0.85rem">No sessions this week yet.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Last test -->
+  <div class="card" style="margin-top:16px">
+    <h2><span class="icon">🏆</span> Latest Test Result</h2>
+    <div id="last-test-info">
+      <p style="color:var(--muted);font-size:0.85rem">No test recorded yet. Test your max every 3–4 weeks.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ LOG WORKOUT ═══════════ -->
+<div class="tab-content" id="tab-log">
+  <div class="card">
+    <h2><span class="icon">📝</span> Log a Workout Session</h2>
+
+    <div class="form-row cols-2" style="margin-bottom:14px">
+      <div class="form-group">
+        <label>Date</label>
+        <input type="date" id="log-date"/>
+      </div>
+      <div class="form-group">
+        <label>Session Type</label>
+        <select id="log-type">
+          <option value="A">Day A — Volume</option>
+          <option value="B">Day B — Density (EMOM)</option>
+          <option value="C">Day C — Strength</option>
+          <option value="test">🏆 Max Test</option>
+          <option value="other">Other / Rest day note</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Dynamic session panel -->
+    <div id="session-panel"></div>
+
+    <div class="divider"></div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label>Bodyweight (kg) — optional</label>
+        <input type="number" id="log-bw" placeholder="e.g. 82" step="0.1"/>
+      </div>
+      <div class="form-group">
+        <label>Energy / Feel (1–5)</label>
+        <select id="log-feel">
+          <option value="">— skip —</option>
+          <option value="1">😩 1 — Terrible</option>
+          <option value="2">😕 2 — Rough</option>
+          <option value="3">😐 3 — OK</option>
+          <option value="4">🙂 4 — Good</option>
+          <option value="5">😄 5 — Great</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:12px">
+      <label>Notes</label>
+      <textarea id="log-notes" placeholder="How did it go? Elbows OK? Any PRs?"></textarea>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveLog()">💾 Save Session</button>
+      <button class="btn btn-ghost" onclick="clearLogForm()">Clear</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ SCHEDULE ═══════════ -->
+<div class="tab-content" id="tab-schedule">
+  <div class="card" style="margin-bottom:16px">
+    <h2><span class="icon">📅</span> 8-Month Training Plan</h2>
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:16px">3 days/week — Mon / Wed / Fri. One full rest day between each session. Test max every 3–4 weeks only.</p>
+
+    <div id="schedule-list"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="icon">📋</span> Session Formats</h2>
+    <div class="workout-day">
+      <h3><span class="day-badge day-a">Day A</span> Volume</h3>
+      <div class="workout-detail">5–6 sets at <strong>50–60% of your max</strong>, 90 sec rest between sets.<br>Add <strong>1 rep per set each week</strong>. Total weekly volume drives adaptation.</div>
+    </div>
+    <div class="workout-day">
+      <h3><span class="day-badge day-b">Day B</span> Density — EMOM</h3>
+      <div class="workout-detail">Every Minute On The Minute: perform target reps at the top of each minute.<br>This builds the <strong>local muscular endurance</strong> that is currently capping you at 23.</div>
+    </div>
+    <div class="workout-day">
+      <h3><span class="day-badge day-c">Day C</span> Strength</h3>
+      <div class="workout-detail">Harder variations: <strong>weighted, decline, archer, or 4-sec negatives</strong> for low reps.<br>Raising maximal strength raises the ceiling on endurance.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ HISTORY ═══════════ -->
+<div class="tab-content" id="tab-history">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+    <div>
+      <h2 style="font-size:1rem;font-weight:600">Session History</h2>
+      <p style="font-size:0.78rem;color:var(--muted)">All saved locally in your browser</p>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+      <button class="btn btn-danger btn-sm" onclick="clearAllData()">🗑 Clear All</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="history-list">
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <p>No sessions logged yet.<br>Head to "Log Workout" to record your first session.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ PROGRESS ═══════════ -->
+<div class="tab-content" id="tab-progress">
+  <div class="card" style="margin-bottom:16px">
+    <h2><span class="icon">📈</span> Max Reps Over Time</h2>
+    <div class="chart-container">
+      <canvas id="chart-max"></canvas>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <h2><span class="icon">📊</span> Weekly Session Count</h2>
+    <div class="chart-container">
+      <canvas id="chart-sessions"></canvas>
+    </div>
+  </div>
+  <div class="card">
+    <h2><span class="icon">⚖️</span> Bodyweight Trend</h2>
+    <div class="chart-container">
+      <canvas id="chart-bw"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TIPS ═══════════ -->
+<div class="tab-content" id="tab-tips">
+  <div class="card" style="margin-bottom:16px">
+    <h2><span class="icon">💡</span> What Actually Decides It</h2>
+    <div class="tips-grid" id="tips-grid"></div>
+  </div>
+  <div class="card">
+    <h2><span class="icon">📏</span> Form Standard</h2>
+    <div style="font-size:0.85rem;line-height:1.8;color:var(--muted)">
+      <p>✅ <strong style="color:var(--text)">Full lockout</strong> at the top — elbows fully extended</p>
+      <p>✅ <strong style="color:var(--text)">Chest to fist-height</strong> at the bottom — no half-reps</p>
+      <p>✅ <strong style="color:var(--text)">Straight line</strong> from head to heels — no sagging hips</p>
+      <p>✅ <strong style="color:var(--text)">Steady rhythm</strong> from rep 1 — don't blast the first 40 and fail at 55</p>
+      <p>✅ <strong style="color:var(--text)">Slow controlled breathing</strong> — a 100-rep set is a ~3-minute effort</p>
+      <p>❌ Count only <strong style="color:var(--red)">clean reps</strong> — partial reps don't count toward 100</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ SETTINGS ═══════════ -->
+<div class="tab-content" id="tab-settings">
+  <div class="card">
+    <h2><span class="icon">👤</span> Your Profile</h2>
+    <div class="profile-header">
+      <div class="profile-avatar">🧑</div>
+      <div>
+        <p style="font-weight:600;margin-bottom:2px" id="profile-display-name">My Profile</p>
+        <p style="font-size:0.8rem;color:var(--muted)">Data stored locally in your browser — no account needed</p>
+      </div>
+    </div>
+    <div class="form-row cols-3" style="margin-bottom:14px">
+      <div class="form-group">
+        <label>Name (display only)</label>
+        <input type="text" id="pref-name" placeholder="e.g. Alex"/>
+      </div>
+      <div class="form-group">
+        <label>Age</label>
+        <input type="number" id="pref-age" placeholder="45" value="45"/>
+      </div>
+      <div class="form-group">
+        <label>Sex</label>
+        <select id="pref-sex">
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row cols-2" style="margin-bottom:14px">
+      <div class="form-group">
+        <label>Starting Max Reps</label>
+        <input type="number" id="pref-start-max" value="23"/>
+      </div>
+      <div class="form-group">
+        <label>Current Max Reps (update after each test)</label>
+        <input type="number" id="pref-current-max" value="23"/>
+      </div>
+    </div>
+    <div class="form-row cols-2" style="margin-bottom:14px">
+      <div class="form-group">
+        <label>Plan Start Date</label>
+        <input type="date" id="pref-start-date"/>
+      </div>
+      <div class="form-group">
+        <label>Training Days per Week</label>
+        <select id="pref-days">
+          <option value="3" selected>3 days (Mon / Wed / Fri)</option>
+          <option value="4">4 days</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveSettings()">💾 Save Settings</button>
+    </div>
+
+    <div class="divider"></div>
+    <h3 style="font-size:0.9rem;margin-bottom:10px">Data Management</h3>
+    <div class="btn-row">
+      <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇ Export Full Log (CSV)</button>
+      <button class="btn btn-danger btn-sm" onclick="clearAllData()">🗑 Delete All Data</button>
+    </div>
+    <p style="font-size:0.75rem;color:var(--muted);margin-top:10px">All data is saved only in this browser's localStorage. Nothing is sent to any server.</p>
+  </div>
+</div>
+
+</main>
+
+<div id="toast-container"></div>
+
+<script>
+/* ═════════════════════════════════════════
+   DATA LAYER — localStorage
+   ═════════════════════════════════════════ */
+const KEYS = {
+  logs: 'push100_logs',
+  settings: 'push100_settings',
+};
+
+function getLogs() {
+  try { return JSON.parse(localStorage.getItem(KEYS.logs) || '[]'); } catch(e) { return []; }
+}
+function saveLogs(arr) { localStorage.setItem(KEYS.logs, JSON.stringify(arr)); }
+function getSettings() {
+  try {
+    return Object.assign({
+      name: '', age: 45, sex: 'male',
+      startMax: 23, currentMax: 23,
+      startDate: new Date().toISOString().slice(0,10),
+      days: 3
+    }, JSON.parse(localStorage.getItem(KEYS.settings) || '{}'));
+  } catch(e) { return { name:'', age:45, sex:'male', startMax:23, currentMax:23, startDate:new Date().toISOString().slice(0,10), days:3 }; }
+}
+function saveSettingsData(obj) { localStorage.setItem(KEYS.settings, JSON.stringify(obj)); }
+
+/* ═════════════════════════════════════════
+   TRAINING PLAN DATA
+   ═════════════════════════════════════════ */
+const PLAN = [
+  { month:'Month 1',  a:'5 × 12',  b:'10 min × 8 reps/min',  c:'5 × 6 negatives (4-sec)' },
+  { month:'Month 2',  a:'5 × 15',  b:'10 min × 10 reps/min', c:'5 × 6 decline' },
+  { month:'Month 3',  a:'6 × 18',  b:'12 min × 10 reps/min', c:'5 × 6 weighted (5 kg)' },
+  { month:'Month 4',  a:'6 × 22',  b:'12 min × 12 reps/min', c:'5 × 5 weighted (10 kg)' },
+  { month:'Month 5',  a:'6 × 28',  b:'12 min × 14 reps/min', c:'5 × 5 archer / assisted one-arm' },
+  { month:'Month 6',  a:'5 × 35',  b:'10 min × 16 reps/min', c:'5 × 5 weighted (12–15 kg)' },
+  { month:'Month 7',  a:'5 × 45',  b:'10 min × 18 reps/min', c:'4 × 5 weighted + paused reps' },
+  { month:'Month 8',  a:'4 × 55',  b:'8 min × 20 reps/min',  c:'Taper — light technique work' },
+];
+
+const MILESTONES = [
+  { label:'Start', target:23, month:'Day 1' },
+  { label:'Month 1', target:30, month:'M1' },
+  { label:'Month 3', target:40, month:'M3' },
+  { label:'Month 5', target:60, month:'M5' },
+  { label:'Month 7', target:80, month:'M7' },
+  { label:'Month 8', target:100, month:'M8' },
+];
+
+const TIPS = [
+  { icon:'🦾', title:'Recovery is king at 45', text:'Elbows and shoulders are the weak link — not the chest. Avoid back-to-back training days early on. If elbows ache, back off immediately.' },
+  { icon:'🏋️', title:'Pull to balance the push', text:'Rows or pull-ups 2×/week to balance the shoulders. Impingement tends to appear around month 3 without pulling work.' },
+  { icon:'⚖️', title:'Bodyweight matters', text:'Every kilogram lost is free reps. Being 10 kg over is worth roughly 15 reps — losing it is faster than training for them.' },
+  { icon:'🌬️', title:'Pacing for 100', text:'A 100-rep set is a ~3-minute effort. Practise slow controlled breathing from rep 1. People who blast the first 40 fail at 55.' },
+  { icon:'🥩', title:'Nutrition & sleep', text:'~1.6 g protein per kg bodyweight and 7+ hours sleep. Recovery is the bottleneck at your age, not effort.' },
+  { icon:'🧪', title:'Test sparingly', text:'One all-out max set every 3–4 weeks only. Frequent testing stalls progress — log it here to track growth.' },
+];
+
+/* ═════════════════════════════════════════
+   TAB NAVIGATION
+   ═════════════════════════════════════════ */
+document.querySelectorAll('nav button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'progress') renderCharts();
+    if (btn.dataset.tab === 'history') renderHistory();
+    if (btn.dataset.tab === 'dashboard') renderDashboard();
+  });
+});
+
+function goToLog() {
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelector('[data-tab="log"]').classList.add('active');
+  document.getElementById('tab-log').classList.add('active');
+}
+
+/* ═════════════════════════════════════════
+   SCHEDULE RENDER
+   ═════════════════════════════════════════ */
+function renderSchedule() {
+  const el = document.getElementById('schedule-list');
+  el.innerHTML = PLAN.map(p => `
+    <div class="sched-month">
+      <h3>${p.month}</h3>
+      <div class="sched-grid">
+        <div class="sched-cell"><div class="label">Day A — Volume</div>${p.a}</div>
+        <div class="sched-cell"><div class="label">Day B — EMOM</div>${p.b}</div>
+        <div class="sched-cell"><div class="label">Day C — Strength</div>${p.c}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ═════════════════════════════════════════
+   TIPS RENDER
+   ═════════════════════════════════════════ */
+function renderTips() {
+  document.getElementById('tips-grid').innerHTML = TIPS.map(t => `
+    <div class="tip-card">
+      <div class="tip-icon">${t.icon}</div>
+      <div><h4>${t.title}</h4><p>${t.text}</p></div>
+    </div>
+  `).join('');
+}
+
+/* ═════════════════════════════════════════
+   MILESTONES
+   ═════════════════════════════════════════ */
+function renderMilestones(currentMax) {
+  const track = document.getElementById('milestone-track');
+  track.innerHTML = MILESTONES.map((m, i) => {
+    const done = currentMax >= m.target;
+    const isCurrent = !done && (i === 0 || currentMax >= MILESTONES[i-1].target);
+    const cls = done ? 'done' : isCurrent ? 'current' : '';
+    return `
+      <div class="milestone-step ${cls}">
+        <div class="dot">${done ? '✓' : m.target}</div>
+        <div class="ms-label">${m.month}</div>
+        <div class="ms-val">${m.target} reps</div>
+      </div>`;
+  }).join('');
+}
+
+/* ═════════════════════════════════════════
+   STREAK
+   ═════════════════════════════════════════ */
+function computeStreak(logs) {
+  if (!logs.length) return 0;
+  const dates = [...new Set(logs.map(l => l.date))].sort().reverse();
+  const today = new Date().toISOString().slice(0,10);
+  let streak = 0;
+  let check = today;
+  for (let d of dates) {
+    if (d === check) {
+      streak++;
+      const dt = new Date(check);
+      dt.setDate(dt.getDate()-1);
+      check = dt.toISOString().slice(0,10);
+    } else if (d < check) break;
+  }
+  return streak;
+}
+
+/* ═════════════════════════════════════════
+   DASHBOARD
+   ═════════════════════════════════════════ */
+function renderDashboard() {
+  const s = getSettings();
+  const logs = getLogs();
+  const currentMax = s.currentMax || s.startMax || 23;
+  const startMax = s.startMax || 23;
+
+  // Stat tiles
+  document.getElementById('dash-max').textContent = currentMax;
+  document.getElementById('dash-sessions').textContent = logs.length;
+  document.getElementById('hdr-max').textContent = currentMax;
+
+  // Header sub
+  const sexLabel = s.sex === 'female' ? 'Female' : 'Male';
+  document.getElementById('header-sub').innerHTML = `${s.name ? s.name + ' · ' : ''}${sexLabel} · Age ${s.age} · Current max: <strong>${currentMax}</strong> reps`;
+
+  // Progress bar
+  const pct = Math.min(100, Math.round(((currentMax - startMax) / (100 - startMax)) * 100));
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('prog-start-label').textContent = `${startMax} reps (start)`;
+
+  // Milestones
+  renderMilestones(currentMax);
+
+  // Streak
+  document.getElementById('streak-count').textContent = computeStreak(logs);
+
+  // Today's workout — figure out which day in the cycle
+  const dayOfWeek = new Date().getDay(); // 0=Sun
+  let todayLabel, todayClass, todayDesc;
+  if ([1,3,5].includes(dayOfWeek)) {
+    const cycle = ['A','B','C'];
+    // Try to guess from logs
+    const todayLogs = logs.filter(l => l.date === new Date().toISOString().slice(0,10));
+    const dayTypes = {A:'Volume', B:'EMOM Density', C:'Strength'};
+    // Determine which month we're in
+    const monthIdx = getMonthIdx(s.startDate);
+    const plan = PLAN[Math.min(monthIdx, 7)];
+    todayLabel = 'Training Day';
+    todayClass = 'day-a';
+    todayDesc = `<strong>Day A (Volume):</strong> ${plan.a}, 90 sec rest<br><strong>Day B (EMOM):</strong> ${plan.b}<br><strong>Day C (Strength):</strong> ${plan.c}`;
+    document.getElementById('today-workout-card').innerHTML = `
+      <p style="margin-bottom:8px;font-size:0.82rem;color:var(--muted)">This week's session targets (${plan.month}):</p>
+      <div style="font-size:0.83rem;line-height:1.9">${todayDesc}</div>`;
+  } else if (dayOfWeek === 0 || dayOfWeek === 6) {
+    document.getElementById('today-workout-card').innerHTML = `<p style="font-size:0.85rem;color:var(--green)">🛌 Rest day — Weekend. Recover well, sleep 7+ hours.</p>`;
+  } else {
+    document.getElementById('today-workout-card').innerHTML = `<p style="font-size:0.85rem;color:var(--muted)">📌 Off day — active recovery: walk, stretch, or row.</p>`;
+  }
+
+  // Weekly summary
+  const weekStart = getWeekStart();
+  const thisWeekLogs = logs.filter(l => l.date >= weekStart);
+  const weekEl = document.getElementById('weekly-summary');
+  if (thisWeekLogs.length === 0) {
+    weekEl.innerHTML = `<p style="color:var(--muted);font-size:0.85rem">No sessions logged this week.</p>`;
+  } else {
+    weekEl.innerHTML = `
+      <p style="font-size:0.82rem;margin-bottom:8px"><span class="badge-pill badge-green">✅ ${thisWeekLogs.length} session${thisWeekLogs.length>1?'s':''} this week</span></p>
+      ${thisWeekLogs.slice(-3).map(l => `
+        <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem;margin-bottom:6px">
+          <span style="color:var(--muted)">${l.date}</span>
+          <span class="badge-pill ${l.type==='A'?'badge-blue':l.type==='B'?'badge-orange':'badge-green'}">Day ${l.type}</span>
+          ${l.totalReps ? `<span style="color:var(--muted)">${l.totalReps} reps</span>` : ''}
+        </div>`).join('')}`;
+  }
+
+  // Last test
+  const tests = logs.filter(l => l.type === 'test').sort((a,b) => b.date.localeCompare(a.date));
+  const testEl = document.getElementById('last-test-info');
+  if (tests.length) {
+    const t = tests[0];
+    testEl.innerHTML = `
+      <p style="font-size:0.9rem"><strong>${t.testMax} reps</strong> on ${t.date}</p>
+      ${t.bw ? `<p style="font-size:0.8rem;color:var(--muted)">Bodyweight: ${t.bw} kg</p>` : ''}
+      ${t.notes ? `<p style="font-size:0.8rem;color:var(--muted);margin-top:4px">${t.notes}</p>` : ''}`;
+  } else {
+    testEl.innerHTML = `<p style="color:var(--muted);font-size:0.85rem">No test recorded yet. Test your max every 3–4 weeks.</p>`;
+  }
+}
+
+function getMonthIdx(startDate) {
+  if (!startDate) return 0;
+  const start = new Date(startDate);
+  const now = new Date();
+  const months = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth());
+  return Math.max(0, Math.min(months, 7));
+}
+
+function getWeekStart() {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(now.setDate(diff)).toISOString().slice(0,10);
+}
+
+/* ═════════════════════════════════════════
+   LOG FORM
+   ═════════════════════════════════════════ */
+document.getElementById('log-date').value = new Date().toISOString().slice(0,10);
+document.getElementById('log-type').addEventListener('change', updateSessionPanel);
+
+function updateSessionPanel() {
+  const type = document.getElementById('log-type').value;
+  const panel = document.getElementById('session-panel');
+  const s = getSettings();
+  const monthIdx = getMonthIdx(s.startDate);
+  const plan = PLAN[Math.min(monthIdx, 7)];
+
+  if (type === 'A') {
+    const sets = parseInt(plan.a.split('×')[0].trim()) || 5;
+    panel.innerHTML = `
+      <div class="test-warning">
+        <strong>Target:</strong> ${plan.a} with 90 sec rest — ${plan.month}
+      </div>
+      <p class="section-title">Log Your Sets</p>
+      ${Array.from({length: sets}, (_,i) => `
+        <div class="set-row">
+          <div class="set-num">${i+1}</div>
+          <div style="flex:1"><input type="number" class="set-reps" placeholder="Reps" min="0" max="200"/></div>
+          <div class="done-check" onclick="toggleCheck(this)" title="Mark set done">✓</div>
+        </div>`).join('')}`;
+  } else if (type === 'B') {
+    panel.innerHTML = `
+      <div class="test-warning">
+        <strong>Target:</strong> ${plan.b} — ${plan.month}
+      </div>
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Minutes completed</label><input type="number" id="emom-mins" placeholder="${plan.b.split('min')[0].trim()}" min="1" max="20"/></div>
+        <div class="form-group"><label>Reps per minute</label><input type="number" id="emom-reps" placeholder="${plan.b.split('×')[1]?.trim() || '10'}" min="1" max="50"/></div>
+      </div>`;
+  } else if (type === 'C') {
+    panel.innerHTML = `
+      <div class="test-warning">
+        <strong>Target:</strong> ${plan.c} — ${plan.month}
+      </div>
+      <p class="section-title">Log Your Sets</p>
+      ${Array.from({length: 5}, (_,i) => `
+        <div class="set-row">
+          <div class="set-num">${i+1}</div>
+          <div style="flex:1"><input type="number" class="set-reps" placeholder="Reps" min="0" max="100"/></div>
+          <div class="done-check" onclick="toggleCheck(this)">✓</div>
+        </div>`).join('')}`;
+  } else if (type === 'test') {
+    panel.innerHTML = `
+      <div class="test-warning">
+        ⚠️ <strong>Test every 3–4 weeks only</strong> — frequent testing stalls progress.
+      </div>
+      <div class="form-group" style="max-width:220px">
+        <label>Max reps achieved (clean form only)</label>
+        <input type="number" id="test-max" placeholder="e.g. 31" min="1" max="200" style="font-size:1.4rem;font-weight:700;text-align:center"/>
+      </div>`;
+  } else {
+    panel.innerHTML = `<p style="font-size:0.85rem;color:var(--muted)">Add any notes about today — rest day, light activity, soreness, etc.</p>`;
+  }
+}
+
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+}
+
+function saveLog() {
+  const date = document.getElementById('log-date').value;
+  const type = document.getElementById('log-type').value;
+  const bw = parseFloat(document.getElementById('log-bw').value) || null;
+  const feel = document.getElementById('log-feel').value || null;
+  const notes = document.getElementById('log-notes').value.trim();
+
+  if (!date) { toast('Please select a date', 'info'); return; }
+
+  let entry = { id: Date.now(), date, type, bw, feel, notes, savedAt: new Date().toISOString() };
+
+  if (type === 'A' || type === 'C') {
+    const reps = Array.from(document.querySelectorAll('.set-reps')).map(i => parseInt(i.value)||0);
+    entry.sets = reps;
+    entry.totalReps = reps.reduce((a,b)=>a+b,0);
+    entry.maxSet = Math.max(...reps);
+  } else if (type === 'B') {
+    entry.emomMins = parseInt(document.getElementById('emom-mins')?.value)||0;
+    entry.emomReps = parseInt(document.getElementById('emom-reps')?.value)||0;
+    entry.totalReps = entry.emomMins * entry.emomReps;
+  } else if (type === 'test') {
+    const mx = parseInt(document.getElementById('test-max')?.value)||0;
+    if (!mx) { toast('Enter your max reps for the test', 'info'); return; }
+    entry.testMax = mx;
+    // Auto-update currentMax in settings
+    const s = getSettings();
+    if (mx > s.currentMax) {
+      s.currentMax = mx;
+      saveSettingsData(s);
+      document.getElementById('pref-current-max').value = mx;
+      toast(`🎉 New max: ${mx} reps! Settings updated.`, 'success');
+    }
+  }
+
+  const logs = getLogs();
+  logs.push(entry);
+  saveLogs(logs);
+  clearLogForm();
+  toast('Session saved! 💾', 'success');
+  renderDashboard();
+}
+
+function clearLogForm() {
+  document.getElementById('log-date').value = new Date().toISOString().slice(0,10);
+  document.getElementById('log-type').value = 'A';
+  document.getElementById('log-bw').value = '';
+  document.getElementById('log-feel').value = '';
+  document.getElementById('log-notes').value = '';
+  updateSessionPanel();
+}
+
+/* ═════════════════════════════════════════
+   HISTORY
+   ═════════════════════════════════════════ */
+function renderHistory() {
+  const logs = getLogs().slice().reverse();
+  const el = document.getElementById('history-list');
+  if (!logs.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><p>No sessions logged yet.</p></div>`;
+    return;
+  }
+  el.innerHTML = logs.map(l => {
+    const d = new Date(l.date + 'T00:00:00');
+    const mon = d.toLocaleString('default',{month:'short'});
+    const day = d.getDate();
+    const typeLabel = {A:'Day A — Volume', B:'Day B — EMOM', C:'Day C — Strength', test:'🏆 Max Test', other:'Other'}[l.type] || l.type;
+    const feelEmoji = {1:'😩',2:'😕',3:'😐',4:'🙂',5:'😄'}[l.feel] || '';
+    let detail = '';
+    if (l.sets) detail = `Sets: ${l.sets.join(', ')} | Total: ${l.totalReps} reps`;
+    else if (l.emomMins) detail = `${l.emomMins} min × ${l.emomReps} reps = ${l.totalReps} total`;
+    else if (l.testMax) detail = `Max reps: <strong style="color:var(--accent)">${l.testMax}</strong>`;
+    return `
+      <div class="log-entry">
+        <div class="log-date-badge"><div class="mon">${mon}</div><div class="day">${day}</div></div>
+        <div class="log-info" style="flex:1">
+          <h4>${typeLabel} ${feelEmoji}</h4>
+          <p>${detail}</p>
+          ${l.bw ? `<p>⚖️ ${l.bw} kg</p>` : ''}
+          ${l.notes ? `<p style="margin-top:4px;font-style:italic">"${l.notes}"</p>` : ''}
+          <div class="log-tags">
+            <span class="tag ${l.type==='test'?'test':''}">${l.type}</span>
+            ${l.feel ? `<span class="tag">Feel: ${l.feel}/5</span>` : ''}
+          </div>
+        </div>
+        <button class="btn btn-danger btn-sm" style="flex-shrink:0" onclick="deleteLog(${l.id})">✕</button>
+      </div>`;
+  }).join('');
+}
+
+function deleteLog(id) {
+  if (!confirm('Delete this session?')) return;
+  saveLogs(getLogs().filter(l => l.id !== id));
+  renderHistory();
+  renderDashboard();
+  toast('Entry deleted', 'info');
+}
+
+/* ═════════════════════════════════════════
+   CHARTS
+   ═════════════════════════════════════════ */
+let chartMax, chartSessions, chartBW;
+
+function renderCharts() {
+  const logs = getLogs().sort((a,b) => a.date.localeCompare(b.date));
+
+  // — Max reps chart (test entries only + setting) —
+  const s = getSettings();
+  const tests = logs.filter(l => l.type === 'test');
+  const testDates = [s.startDate, ...tests.map(l => l.date)];
+  const testVals  = [s.startMax, ...tests.map(l => l.testMax)];
+
+  // Target line
+  const targetData = testDates.map(() => 100);
+
+  destroyChart(chartMax);
+  chartMax = new Chart(document.getElementById('chart-max'), {
+    type: 'line',
+    data: {
+      labels: testDates,
+      datasets: [
+        { label:'Max reps', data:testVals, borderColor:'#f97316', backgroundColor:'rgba(249,115,22,0.15)', fill:true, tension:0.35, pointRadius:5, pointBackgroundColor:'#f97316' },
+        { label:'Goal (100)', data:targetData, borderColor:'rgba(34,197,94,0.5)', borderDash:[6,4], pointRadius:0, fill:false },
+      ]
+    },
+    options: chartOpts('Reps')
+  });
+
+  // — Weekly sessions bar chart —
+  const weekMap = {};
+  logs.forEach(l => {
+    const wk = getWeekKey(l.date);
+    weekMap[wk] = (weekMap[wk]||0)+1;
+  });
+  const wkKeys = Object.keys(weekMap).sort();
+  destroyChart(chartSessions);
+  chartSessions = new Chart(document.getElementById('chart-sessions'), {
+    type: 'bar',
+    data: {
+      labels: wkKeys,
+      datasets: [{ label:'Sessions', data: wkKeys.map(k=>weekMap[k]), backgroundColor:'rgba(56,189,248,0.6)', borderColor:'#38bdf8', borderWidth:1, borderRadius:4 }]
+    },
+    options: chartOpts('Sessions / week')
+  });
+
+  // — Bodyweight trend —
+  const bwLogs = logs.filter(l=>l.bw);
+  destroyChart(chartBW);
+  chartBW = new Chart(document.getElementById('chart-bw'), {
+    type: 'line',
+    data: {
+      labels: bwLogs.map(l=>l.date),
+      datasets: [{ label:'Bodyweight (kg)', data:bwLogs.map(l=>l.bw), borderColor:'#a78bfa', backgroundColor:'rgba(167,139,250,0.12)', fill:true, tension:0.4, pointRadius:4, pointBackgroundColor:'#a78bfa' }]
+    },
+    options: chartOpts('kg')
+  });
+}
+
+function destroyChart(c) { if (c) { try { c.destroy(); } catch(e){} } }
+
+function chartOpts(yLabel) {
+  return {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ labels:{ color:'#94a3b8', font:{size:11} } } },
+    scales:{
+      x:{ ticks:{ color:'#94a3b8', font:{size:10} }, grid:{ color:'rgba(45,49,72,0.6)' } },
+      y:{ ticks:{ color:'#94a3b8', font:{size:10} }, grid:{ color:'rgba(45,49,72,0.6)' }, title:{ display:true, text:yLabel, color:'#94a3b8', font:{size:10} } }
+    }
+  };
+}
+
+function getWeekKey(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day===0?-6:1);
+  d.setDate(diff);
+  return d.toISOString().slice(0,10);
+}
+
+/* ═════════════════════════════════════════
+   SETTINGS
+   ═════════════════════════════════════════ */
+function loadSettings() {
+  const s = getSettings();
+  document.getElementById('pref-name').value = s.name || '';
+  document.getElementById('pref-age').value = s.age || 45;
+  document.getElementById('pref-sex').value = s.sex || 'male';
+  document.getElementById('pref-start-max').value = s.startMax || 23;
+  document.getElementById('pref-current-max').value = s.currentMax || 23;
+  document.getElementById('pref-start-date').value = s.startDate || new Date().toISOString().slice(0,10);
+  document.getElementById('pref-days').value = s.days || 3;
+  if (s.name) document.getElementById('profile-display-name').textContent = s.name;
+}
+
+function saveSettings() {
+  const s = {
+    name: document.getElementById('pref-name').value.trim(),
+    age: parseInt(document.getElementById('pref-age').value)||45,
+    sex: document.getElementById('pref-sex').value,
+    startMax: parseInt(document.getElementById('pref-start-max').value)||23,
+    currentMax: parseInt(document.getElementById('pref-current-max').value)||23,
+    startDate: document.getElementById('pref-start-date').value,
+    days: parseInt(document.getElementById('pref-days').value)||3,
+  };
+  saveSettingsData(s);
+  toast('Settings saved ✅', 'success');
+  renderDashboard();
+}
+
+/* ═════════════════════════════════════════
+   EXPORT CSV
+   ═════════════════════════════════════════ */
+function exportCSV() {
+  const logs = getLogs();
+  if (!logs.length) { toast('No data to export', 'info'); return; }
+  const header = ['Date','Type','Sets','TotalReps','MaxSet','TestMax','EmomMins','EmomReps','Bodyweight_kg','Feel','Notes'];
+  const rows = logs.map(l => [
+    l.date, l.type,
+    (l.sets||[]).join(';'),
+    l.totalReps||'',
+    l.maxSet||'',
+    l.testMax||'',
+    l.emomMins||'',
+    l.emomReps||'',
+    l.bw||'',
+    l.feel||'',
+    (l.notes||'').replace(/,/g,'；')
+  ]);
+  const csv = [header, ...rows].map(r=>r.join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `100pushups_log_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast('Exported! 📥', 'success');
+}
+
+/* ═════════════════════════════════════════
+   CLEAR ALL
+   ═════════════════════════════════════════ */
+function clearAllData() {
+  if (!confirm('Delete ALL session logs? Your settings will be kept. This cannot be undone.')) return;
+  localStorage.removeItem(KEYS.logs);
+  renderHistory();
+  renderDashboard();
+  toast('All logs cleared', 'info');
+}
+
+/* ═════════════════════════════════════════
+   TOAST
+   ═════════════════════════════════════════ */
+function toast(msg, type='success') {
+  const c = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span>${msg}</span>`;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 3100);
+}
+
+/* ═════════════════════════════════════════
+   INIT
+   ═════════════════════════════════════════ */
+loadSettings();
+renderSchedule();
+renderTips();
+renderDashboard();
+updateSessionPanel();
+</script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"f0f03d0605bf45f1a3b17cf7d5e6861f"}' crossorigin="anonymous"></script>
+</body>
+</html>

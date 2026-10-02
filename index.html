@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SAH Movement Snacks · Sustainable Atomic Habits</title>
+<style>
+  :root {
+    --bg:       #f4f2fb;
+    --surface:  #ffffff;
+    --border:   #e0daf5;
+    --violet:   #4f46e5;
+    --violet-l: #7c3aed;
+    --violet-p: #ede9fe;
+    --orange:   #f97316;
+    --orange-p: #fff7ed;
+    --green:    #059669;
+    --green-p:  #d1fae5;
+    --text:     #1e1b2e;
+    --muted:    #6b7280;
+    --radius:   16px;
+    --shadow:   0 2px 16px rgba(79,70,229,.10);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+  nav {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    color: #fff;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  nav a { color: rgba(255,255,255,.75); text-decoration: none; font-size: .88rem; }
+  nav a:hover { color: #fff; }
+  nav .sep { color: rgba(255,255,255,.4); }
+  nav .current { color: #fff; font-weight: 600; }
+
+  .hero {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #9333ea 100%);
+    color: #fff;
+    padding: 52px 28px 44px;
+    text-align: center;
+  }
+  .hero h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -.5px; }
+  .hero p { margin-top: 10px; font-size: 1.05rem; opacity: .9; max-width: 580px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+  .hero-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 18px; }
+  .hero-badge {
+    background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.35);
+    border-radius: 999px; padding: 5px 14px; font-size: .78rem; font-weight: 600;
+  }
+
+  .philosophy {
+    max-width: 780px;
+    margin: 40px auto 10px;
+    padding: 0 28px;
+    text-align: center;
+  }
+  .philosophy h2 { font-size: 1.25rem; color: var(--violet); font-weight: 700; margin-bottom: 10px; }
+  .philosophy p { font-size: .95rem; color: var(--muted); line-height: 1.7; }
+
+  .app-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+    padding: 32px 28px 60px;
+    max-width: 1060px;
+    margin: 0 auto;
+  }
+
+  .app-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow .2s, transform .2s;
+    text-decoration: none;
+    color: inherit;
+  }
+  .app-card:hover { box-shadow: 0 8px 32px rgba(79,70,229,.18); transform: translateY(-3px); }
+
+  .card-top {
+    padding: 28px 24px 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .card-icon {
+    width: 54px; height: 54px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem;
+    flex-shrink: 0;
+  }
+  .icon-orange { background: var(--orange-p); }
+  .icon-violet { background: var(--violet-p); }
+  .icon-green  { background: var(--green-p);  }
+
+  .card-label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 4px; }
+  .card-title { font-size: 1.1rem; font-weight: 700; line-height: 1.3; }
+
+  .card-body { padding: 0 24px 18px; flex: 1; }
+  .card-desc { font-size: .88rem; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
+
+  .card-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pill {
+    border-radius: 999px; padding: 3px 11px; font-size: .72rem; font-weight: 700;
+  }
+  .pill-orange { background: var(--orange-p); color: #c2410c; }
+    .pill-violet { background: var(--violet-p); color: #4f46e5; }
+  .pill-green  { background: var(--green-p);  color: #065f46; }
+
+  .card-footer {
+    padding: 14px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: .84rem;
+    font-weight: 700;
+    color: var(--violet);
+  }
+  .launch-arrow { font-size: 1rem; }
+
+  .add-hint {
+    max-width: 1060px;
+    margin: -20px auto 0;
+    padding: 0 28px 36px;
+  }
+  .add-hint details {
+    background: var(--surface);
+    border: 1.5px dashed #a5b4fc;
+    border-radius: var(--radius);
+    padding: 16px 22px;
+  }
+  .add-hint summary {
+    font-size: .88rem; font-weight: 700; color: var(--violet); cursor: pointer;
+    list-style: none; display: flex; align-items: center; gap: 8px;
+  }
+  .add-hint p { font-size: .85rem; color: var(--muted); margin-top: 12px; line-height: 1.6; }
+  .add-hint code {
+    background: #1e1b2e; color: #c4b5fd;
+    border-radius: 6px; padding: 2px 8px; font-size: .82rem;
+  }
+
+  footer { text-align: center; padding: 28px; font-size: .8rem; color: var(--muted); border-top: 1px solid var(--border); }
+  footer a { color: var(--violet); text-decoration: none; }
+
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 1.6rem; }
+    .app-grid { padding: 20px 14px 40px; gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="../index.html">🌿 SAH Home</a>
+  <span class="sep">›</span>
+  <span class="current">⚡ Movement Snacks</span>
+</nav>
+
+<div class="hero">
+  <h1>⚡ Movement Snacks</h1>
+  <p>Small, purposeful bursts of movement and self-improvement tools — designed to fit into daily life without requiring a gym or large time blocks.</p>
+  <div class="hero-badges">
+    <span class="hero-badge">🏃 Running Analysis</span>
+    <span class="hero-badge">💪 Strength Building</span>
+    <span class="hero-badge">🌱 Sustainable Habits</span>
+    <span class="hero-badge">📊 Progress Tracking</span>
+  </div>
+</div>
+
+<div class="philosophy">
+  <h2>What is a Movement Snack?</h2>
+  <p>A movement snack is a short (2–15 min), intentional physical activity slotted into the gaps of your day — between meetings, after lunch, before bed. Inspired by atomic habits research: small consistent actions compound into lasting change far more reliably than sporadic intense sessions.</p>
+</div>
+
+<div class="app-grid">
+
+  <!-- 1. 100 Push-Ups -->
+  <a class="app-card" href="100pushes.html">
+    <div class="card-top">
+      <div class="card-icon icon-orange">💪</div>
+      <div>
+        <div class="card-label">Strength · Progressive</div>
+        <div class="card-title">Road to 100 Push-Ups</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <p class="card-desc">A structured 8–12 week progressive programme to take you from zero to 100 consecutive push-ups. Track daily sessions, visualise your progress with charts and maintain your streak.</p>
+      <div class="card-pills">
+        <span class="pill pill-orange">📈 Progress Charts</span>
+        <span class="pill pill-orange">🔥 Streak Tracker</span>
+        <span class="pill pill-orange">⚡ Daily Sessions</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <span>Open App</span>
+      <span class="launch-arrow">→</span>
+    </div>
+  </a>
+
+  <!-- 2. AI Running Style Analyser -->
+  <a class="app-card" href="AIRunningStyleV2.html">
+    <div class="card-top">
+      <div class="card-icon icon-violet">🏃</div>
+      <div>
+        <div class="card-label">AI-Powered · Biomechanics</div>
+        <div class="card-title">AI Running Style Analyser</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <p class="card-desc">Upload a short video of yourself running and let AI analyse your posture, cadence and biomechanics in real time. Get personalised form feedback to run more efficiently and reduce injury risk.</p>
+      <div class="card-pills">
+        <span class="pill pill-violet">🤖 Real ML Pose</span>
+        <span class="pill pill-violet">📹 Video Upload</span>
+        <span class="pill pill-violet">📋 Form Report</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <span>Open App</span>
+      <span class="launch-arrow">→</span>
+    </div>
+  </a>
+
+  <!-- 3. Diverse Diet & Sustainability App -->
+  <a class="app-card" href="SAH_2_DiverseDietSustainabilityApp.html">
+    <div class="card-top">
+      <div class="card-icon icon-green">🌍</div>
+      <div>
+        <div class="card-label">Diet · Planet · Nutrition</div>
+        <div class="card-title">Diverse Diet & Sustainability</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <p class="card-desc">Track the diversity of your diet across plant-based food groups and see your environmental impact in real time. Discover how a varied plant-forward diet benefits both your gut microbiome and the planet.</p>
+      <div class="card-pills">
+        <span class="pill pill-green">🌱 Diet Diversity Score</span>
+        <span class="pill pill-green">🌍 CO₂ Impact</span>
+        <span class="pill pill-green">📊 Visual Dashboard</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <span>Open App</span>
+      <span class="launch-arrow">→</span>
+    </div>
+  </a>
+
+</div>
+
+<div class="add-hint">
+  <details>
+    <summary>➕ How to add a new Movement Snack app</summary>
+    <p>
+      1. Save your new app as a <code>.html</code> file in the <code>SAH_movement_snacks/</code> folder on GitHub.<br><br>
+      2. Open <code>SAH_movement_snacks/index.html</code> in the GitHub editor and copy one of the <code>&lt;a class="app-card" …&gt;</code> blocks.<br><br>
+      3. Update the <code>href</code> to your new file name, choose an icon style (<code>icon-orange</code>, <code>icon-violet</code> or <code>icon-green</code>), and fill in the title, description and pills.<br><br>
+      4. Commit directly to <code>main</code> — the site updates within 1–2 minutes.
+    </p>
+  </details>
+</div>
+
+<footer>
+  <p>Part of <a href="../index.html">Sustainable Atomic Habits</a> · Built with ⚡ for daily movement</p>
+</footer>
+
+</body>
+</html>
