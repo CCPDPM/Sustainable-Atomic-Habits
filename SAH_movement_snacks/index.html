@@ -4,6 +4,10 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>SAH Movement Snacks · Sustainable Atomic Habits</title>
+<meta name="description" content="Short movement snacks, an injury-preventing interval warm-up, and the SAH running club on Luma and Strava. Small habits, done together, that last."/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="SAH Movement Snacks · Run together, stay consistent"/>
+<meta property="og:description" content="Warm up with our guided timer, book a group run on Luma, and log it with the SAH Strava club."/>
 <style>
   :root {
     --bg:       #f4f2fb;
@@ -14,16 +18,19 @@
     --violet-p: #ede9fe;
     --orange:   #f97316;
     --orange-p: #fff7ed;
+    --strava:   #FC4C02;
+    --strava-p: #fff1ea;
     --green:    #059669;
     --green-p:  #d1fae5;
     --text:     #1e1b2e;
     --muted:    #6b7280;
     --radius:   16px;
     --shadow:   0 2px 16px rgba(79,70,229,.10);
-	.icon-strava { background: #fff1ea; color: #FC4C02; }
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+  a:focus-visible { outline: 3px solid #a5b4fc; outline-offset: 3px; }
 
   nav {
     background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
@@ -46,11 +53,20 @@
   }
   .hero h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -.5px; }
   .hero p { margin-top: 10px; font-size: 1.05rem; opacity: .9; max-width: 580px; margin-left: auto; margin-right: auto; line-height: 1.6; }
-  .hero-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 18px; }
-  .hero-badge {
-    background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.35);
-    border-radius: 999px; padding: 5px 14px; font-size: .78rem; font-weight: 600;
+
+  .hero-cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 24px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 20px; border-radius: 12px;
+    font-size: .95rem; font-weight: 700; text-decoration: none;
+    transition: background .2s, color .2s;
   }
+  .btn-primary { background: #fff; color: var(--violet); }
+  .btn-primary:hover { background: var(--violet-p); }
+  .btn-ghost { border: 2px solid rgba(255,255,255,.7); color: #fff; }
+  .btn-ghost:hover { background: rgba(255,255,255,.15); }
+
+  .hero-tags { margin-top: 18px; font-size: .8rem; opacity: .75; letter-spacing: .02em; }
 
   .philosophy {
     max-width: 780px;
@@ -61,14 +77,23 @@
   .philosophy h2 { font-size: 1.25rem; color: var(--violet); font-weight: 700; margin-bottom: 10px; }
   .philosophy p { font-size: .95rem; color: var(--muted); line-height: 1.7; }
 
+  .section-head {
+    max-width: 1060px;
+    margin: 36px auto 0;
+    padding: 0 28px;
+  }
+  .section-head h2 { font-size: 1.15rem; font-weight: 800; color: var(--text); }
+  .section-head p { font-size: .9rem; color: var(--muted); margin-top: 4px; line-height: 1.5; }
+
   .app-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 24px;
-    padding: 32px 28px 60px;
+    padding: 20px 28px 20px;
     max-width: 1060px;
     margin: 0 auto;
   }
+  .app-grid:last-of-type { padding-bottom: 60px; }
 
   .app-card {
     background: var(--surface);
@@ -100,6 +125,7 @@
   .icon-orange { background: var(--orange-p); }
   .icon-violet { background: var(--violet-p); }
   .icon-green  { background: var(--green-p);  }
+  .icon-strava { background: var(--strava-p); }
 
   .card-label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 4px; }
   .card-title { font-size: 1.1rem; font-weight: 700; line-height: 1.3; }
@@ -108,11 +134,9 @@
   .card-desc { font-size: .88rem; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
 
   .card-pills { display: flex; flex-wrap: wrap; gap: 6px; }
-  .pill {
-    border-radius: 999px; padding: 3px 11px; font-size: .72rem; font-weight: 700;
-  }
+  .pill { border-radius: 999px; padding: 3px 11px; font-size: .72rem; font-weight: 700; }
   .pill-orange { background: var(--orange-p); color: #c2410c; }
-    .pill-violet { background: var(--violet-p); color: #4f46e5; }
+  .pill-violet { background: var(--violet-p); color: #4f46e5; }
   .pill-green  { background: var(--green-p);  color: #065f46; }
 
   .card-footer {
@@ -125,35 +149,23 @@
     font-weight: 700;
     color: var(--violet);
   }
+  .footer-strava { color: #c2410c; }
   .launch-arrow { font-size: 1rem; }
 
-  .add-hint {
-    max-width: 1060px;
-    margin: -20px auto 0;
-    padding: 0 28px 36px;
-  }
-  .add-hint details {
-    background: var(--surface);
-    border: 1.5px dashed #a5b4fc;
-    border-radius: var(--radius);
-    padding: 16px 22px;
-  }
-  .add-hint summary {
-    font-size: .88rem; font-weight: 700; color: var(--violet); cursor: pointer;
-    list-style: none; display: flex; align-items: center; gap: 8px;
-  }
-  .add-hint p { font-size: .85rem; color: var(--muted); margin-top: 12px; line-height: 1.6; }
-  .add-hint code {
-    background: #1e1b2e; color: #c4b5fd;
-    border-radius: 6px; padding: 2px 8px; font-size: .82rem;
-  }
-
-  footer { text-align: center; padding: 28px; font-size: .8rem; color: var(--muted); border-top: 1px solid var(--border); }
-  footer a { color: var(--violet); text-decoration: none; }
+  footer { text-align: center; padding: 28px; font-size: .8rem; color: var(--muted); border-top: 1px solid var(--border); line-height: 1.8; }
+  footer a { color: var(--violet); text-decoration: none; font-weight: 600; }
+  footer a:hover { text-decoration: underline; }
 
   @media (max-width: 600px) {
     .hero h1 { font-size: 1.6rem; }
-    .app-grid { padding: 20px 14px 40px; gap: 16px; }
+    .app-grid { padding: 16px 14px 16px; gap: 16px; }
+    .section-head { padding: 0 14px; }
+    .btn { width: 100%; justify-content: center; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .app-card, .btn { transition: none; }
+    .app-card:hover { transform: none; }
   }
 </style>
 </head>
@@ -165,25 +177,101 @@
   <span class="current">⚡ Movement Snacks</span>
 </nav>
 
-<div class="hero">
+<header class="hero">
   <h1>⚡ Movement Snacks</h1>
-  <p>Small, purposeful bursts of movement and self-improvement tools — designed to fit into daily life without requiring a gym or large time blocks.</p>
-  <div class="hero-badges">
-    <span class="hero-badge">🏃 Running Analysis</span>
-    <span class="hero-badge">💪 Strength Building</span>
-    <span class="hero-badge">🌱 Sustainable Habits</span>
-    <span class="hero-badge">📊 Progress Tracking</span>
+  <p>Small, purposeful bursts of movement that fit into daily life. No gym, no big time blocks. And when you want company, the SAH running club is one click away.</p>
+  <div class="hero-cta">
+    <a class="btn btn-primary" href="https://luma.com/calendar/cal-aC8W6C45K5Ak2BP" target="_blank" rel="noopener" aria-label="Join a group run on Luma (opens in a new tab)">📅 Join a group run</a>
+    <a class="btn btn-ghost" href="https://www.strava.com/clubs/SustainableAtomicHabits" target="_blank" rel="noopener" aria-label="Join the SAH club on Strava (opens in a new tab)">🧡 Join us on Strava</a>
   </div>
-</div>
+  <p class="hero-tags">Running · Strength · Sustainable habits · Progress tracking</p>
+</header>
 
-<div class="philosophy">
+<main>
+
+<section class="philosophy">
   <h2>What is a Movement Snack?</h2>
-  <p>A movement snack is a short (2–15 min), intentional physical activity slotted into the gaps of your day — between meetings, after lunch, before bed. Inspired by atomic habits research: small consistent actions compound into lasting change far more reliably than sporadic epic sessions.</p>
+  <p>A movement snack is a short (2–15 min), intentional physical activity slotted into the gaps of your day: between meetings, after lunch, before bed. Inspired by <em>Atomic Habits</em>: small consistent actions compound into lasting change far more reliably than sporadic epic sessions.</p>
+</section>
+
+<!-- ===== RUN WITH THE CLUB ===== -->
+<div class="section-head">
+  <h2>🏃 Run with the club</h2>
+  <p>Warm up safely, book a session, log it together. Repeat.</p>
 </div>
 
 <div class="app-grid">
 
-  <!-- 1. 100 Push-Ups -->
+  <!-- 1. Interval running warmup -->
+  <a class="app-card" href="SAHintervalsWarmup.html">
+    <div class="card-top">
+      <div class="card-icon icon-violet">🏃</div>
+      <div>
+        <div class="card-label">Injury prevention · 15 min</div>
+        <div class="card-title">Warm up right. Run your intervals strong.</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <p class="card-desc">Hit start and follow along: easy jog, mobility, drills and strides, with a guided timer and an animated figure for every move. Short on time? The 10-minute Essentials mode covers what matters most.</p>
+      <div class="card-pills">
+        <span class="pill pill-violet">⏱ Guided timer</span>
+        <span class="pill pill-violet">🎬 Animated moves</span>
+        <span class="pill pill-violet">⚡ 10-min mode</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <span>Start warm-up</span>
+      <span class="launch-arrow">→</span>
+    </div>
+  </a>
+
+  <!-- 2. Club sessions on Luma -->
+  <a class="app-card" href="https://luma.com/calendar/cal-aC8W6C45K5Ak2BP" target="_blank" rel="noopener" aria-label="Book your next SAH group run on Luma (opens in a new tab)">
+    <div class="card-top">
+      <div class="card-icon icon-violet">📅</div>
+      <div>
+        <div class="card-label">Run together · Luma</div>
+        <div class="card-title">Book your next group run</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <p class="card-desc">Running alone builds fitness. Running together builds the habit. Pick an upcoming SAH session, warm up with our timer, and show up. Save your spot in seconds.</p>
+    </div>
+    <div class="card-footer">
+      <span>See upcoming sessions</span>
+      <span class="launch-arrow">→</span>
+    </div>
+  </a>
+
+  <!-- 3. Strava club -->
+  <a class="app-card" href="https://www.strava.com/clubs/SustainableAtomicHabits" target="_blank" rel="noopener" aria-label="Join the SAH club on Strava (opens in a new tab)">
+    <div class="card-top">
+      <div class="card-icon icon-strava">🧡</div>
+      <div>
+        <div class="card-label">Stay consistent · Strava</div>
+        <div class="card-title">Join the SAH Strava club</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <p class="card-desc">Log every run, follow the club's shared progress and give kudos. Small steps, repeated together, become habits that last for life.</p>
+    </div>
+    <div class="card-footer footer-strava">
+      <span>Join the club</span>
+      <span class="launch-arrow">→</span>
+    </div>
+  </a>
+
+</div>
+
+<!-- ===== DAILY HABITS ===== -->
+<div class="section-head">
+  <h2>🌱 Daily habits</h2>
+  <p>Tiny daily actions for strength, health and the planet.</p>
+</div>
+
+<div class="app-grid">
+
+  <!-- 5. 100 Push-Ups -->
   <a class="app-card" href="100pushes.html">
     <div class="card-top">
       <div class="card-icon icon-orange">💪</div>
@@ -206,61 +294,7 @@
     </div>
   </a>
 
-<!-- 2. Interval running warmup -->
-<a class="app-card" href="SAHintervalsWarmup.html">
-  <div class="card-top">
-    <div class="card-icon icon-violet">🏃</div>
-    <div>
-      <div class="card-label">Injury prevention · 15 min</div>
-      <div class="card-title">Warm up right. Run your intervals strong.</div>
-    </div>
-  </div>
-  <div class="card-body">
-    <p class="card-desc">Hit start and follow along: easy jog, mobility, drills and strides, with a guided timer and an animated figure for every move. Short on time? The 10-minute Essentials mode covers what matters most.</p>
-  </div>
-  <div class="card-footer">
-    <span>Start warm-up</span>
-    <span class="launch-arrow">→</span>
-  </div>
-</a>
-
-<!-- 3. Club sessions on Luma -->
-  <a class="app-card" href="https://luma.com/calendar/cal-aC8W6C45K5Ak2BP" target="_blank" rel="noopener" aria-label="Book your next SAH group run on Luma (opens in a new tab)">
-    <div class="card-top">
-      <div class="card-icon icon-violet">📅</div>
-      <div>
-        <div class="card-label">Run together · Luma</div>
-        <div class="card-title">Book your next group run</div>
-      </div>
-    </div>
-    <div class="card-body">
-      <p class="card-desc">Running alone builds fitness. Running together builds the habit. Pick an upcoming SAH session, warm up with our timer, and show up. Save your spot in seconds.</p>
-    </div>
-    <div class="card-footer">
-      <span>See upcoming sessions</span>
-      <span class="launch-arrow">→</span>
-    </div>
-  </a>
-  
-  <!-- 4. Strava club -->
-  <a class="app-card" href="https://www.strava.com/clubs/SustainableAtomicHabits" target="_blank" rel="noopener" aria-label="Join the SAH club on Strava (opens in a new tab)">
-    <div class="card-top">
-      <div class="card-icon icon-strava">🧡</div>
-      <div>
-        <div class="card-label">Stay consistent · Strava</div>
-        <div class="card-title">Join the SAH Strava club</div>
-      </div>
-    </div>
-    <div class="card-body">
-      <p class="card-desc">Log every run, follow the club's shared progress and give kudos. Small steps, repeated together, become habits that last for life.</p>
-    </div>
-    <div class="card-footer">
-      <span>Join the club</span>
-      <span class="launch-arrow">→</span>
-    </div>
-  </a>
-  
-  <!-- 5. Diverse Diet & Sustainability App -->
+  <!-- 6. Diverse Diet & Sustainability App -->
   <a class="app-card" href="SAH_2_DiverseDietSustainabilityApp.html">
     <div class="card-top">
       <div class="card-icon icon-green">🌍</div>
@@ -285,20 +319,20 @@
 
 </div>
 
-<div class="add-hint">
-  <details>
-    <summary>➕ How to add a new Movement Snack app</summary>
-    <p>
-      1. Save your new app as a <code>.html</code> file in the <code>SAH_movement_snacks/</code> folder on GitHub.<br><br>
-      2. Open <code>SAH_movement_snacks/index.html</code> in the GitHub editor and copy one of the <code>&lt;a class="app-card" …&gt;</code> blocks.<br><br>
-      3. Update the <code>href</code> to your new file name, choose an icon style (<code>icon-orange</code>, <code>icon-violet</code> or <code>icon-green</code>), and fill in the title, description and pills.<br><br>
-      4. Commit directly to <code>main</code> — the site updates within 1–2 minutes.
-    </p>
-  </details>
-</div>
+</main>
+
+<!--
+  ADMIN NOTE – How to add a new Movement Snack app:
+  1. Save the new app as a .html file in SAH_movement_snacks/ on GitHub.
+  2. Copy one <a class="app-card" …> block into the right section above.
+  3. Update href, icon class (icon-orange / icon-violet / icon-green / icon-strava),
+     label, title, description and pills.
+  4. Commit to main. GitHub Pages updates within 1–2 minutes.
+-->
 
 <footer>
   <p>Part of <a href="../index.html">Sustainable Atomic Habits</a> · Built with ⚡ for daily movement</p>
+  <p><a href="https://luma.com/calendar/cal-aC8W6C45K5Ak2BP" target="_blank" rel="noopener">📅 Group runs on Luma</a> · <a href="https://www.strava.com/clubs/SustainableAtomicHabits" target="_blank" rel="noopener">🧡 SAH Strava club</a></p>
 </footer>
 
 </body>
