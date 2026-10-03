@@ -61,22 +61,23 @@
     font-weight: 600;
   }
 
-  <!-- NUTRITION STRIP — insert after the HERO div -->
-<aside class="nutri-strip" aria-label="Vegan nutrition essentials">
-  <div class="nutri-inner">
-    <div class="nutri-text">
-      <strong>🌿 Food covers most — but not all.</strong>
-      <span>Alongside great recipes, every vegan should cover:</span>
-    </div>
-    <div class="nutri-chips">
-      <span class="nutri-chip">B12</span>
-      <span class="nutri-chip">D3 · Oct–Mar</span>
-      <span class="nutri-chip">Iodine</span>
-      <span class="nutri-chip">Algal Omega-3</span>
-    </div>
-    <a class="nutri-link" href="supplements.html">Evidence-based stack →</a>
-  </div>
-</aside>
+/* ── NUTRITION STRIP ── */
+  .nutri-strip { max-width: 1100px; margin: 22px auto 0; padding: 0 28px; }
+  .nutri-inner {
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 4px solid var(--forest); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 14px 20px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px;
+  }
+  .nutri-text { font-size: .88rem; color: var(--muted); display: flex; flex-direction: column; }
+  .nutri-text strong { color: var(--text); }
+  .nutri-chips { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
+  .nutri-chip {
+    background: var(--forest-pale); color: var(--forest);
+    border-radius: 999px; padding: 4px 12px; font-size: .75rem; font-weight: 700;
+  }
+  .nutri-link { font-size: .85rem; font-weight: 700; color: var(--forest); text-decoration: none; white-space: nowrap; }
+  .nutri-link:hover { text-decoration: underline; }
   
   /* ── FILTER BAR ── */
   .filter-bar {
@@ -327,6 +328,7 @@
 
   @media (max-width: 600px) {
     .hero h1 { font-size: 1.6rem; }
+	.nutri-strip { padding: 0 14px; }
     .recipe-grid { padding: 12px 14px 40px; gap: 16px; }
     .filter-bar { padding: 16px 14px 6px; }
   }
@@ -353,6 +355,27 @@
     <span class="hero-badge">⭐ Michelin-Inspired</span>
   </div>
 </div>
+
+</div><!-- end HERO -->
+
+<!-- NUTRITION STRIP -->
+<aside class="nutri-strip" aria-label="Vegan nutrition essentials">
+  <div class="nutri-inner">
+    <div class="nutri-text">
+      <strong>🌿 Food covers most — but not all.</strong>
+      <span>Alongside great recipes, every vegan should cover:</span>
+    </div>
+    <div class="nutri-chips">
+      <span class="nutri-chip">B12</span>
+      <span class="nutri-chip">D3 · Oct–Mar</span>
+      <span class="nutri-chip">Iodine</span>
+      <span class="nutri-chip">Algal Omega-3</span>
+    </div>
+    <a class="nutri-link" href="supplements.html">Evidence-based stack →</a>
+  </div>
+</aside>
+
+<!-- FILTER -->
 
 <!-- FILTER -->
 <div class="filter-bar">
