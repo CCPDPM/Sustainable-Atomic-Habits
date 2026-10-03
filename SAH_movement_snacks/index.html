@@ -20,6 +20,7 @@
     --muted:    #6b7280;
     --radius:   16px;
     --shadow:   0 2px 16px rgba(79,70,229,.10);
+	.icon-strava { background: #fff1ea; color: #FC4C02; }
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
@@ -177,7 +178,7 @@
 
 <div class="philosophy">
   <h2>What is a Movement Snack?</h2>
-  <p>A movement snack is a short (2–15 min), intentional physical activity slotted into the gaps of your day — between meetings, after lunch, before bed. Inspired by atomic habits research: small consistent actions compound into lasting change far more reliably than sporadic intense sessions.</p>
+  <p>A movement snack is a short (2–15 min), intentional physical activity slotted into the gaps of your day — between meetings, after lunch, before bed. Inspired by atomic habits research: small consistent actions compound into lasting change far more reliably than sporadic epic sessions.</p>
 </div>
 
 <div class="app-grid">
@@ -222,41 +223,43 @@
     <span class="launch-arrow">→</span>
   </div>
 </a>
+
 <!-- 3. Club sessions on Luma -->
-  <a class="app-card" href="https://luma.com/calendar/cal-aC8W6C45K5Ak2BP" target="_blank" rel="noopener">
+  <a class="app-card" href="https://luma.com/calendar/cal-aC8W6C45K5Ak2BP" target="_blank" rel="noopener" aria-label="Book your next SAH group run on Luma (opens in a new tab)">
     <div class="card-top">
       <div class="card-icon icon-violet">📅</div>
       <div>
-        <div class="card-label">Run together</div>
-        <div class="card-title">Book your next club session</div>
+        <div class="card-label">Run together · Luma</div>
+        <div class="card-title">Book your next group run</div>
       </div>
     </div>
     <div class="card-body">
-      <p class="card-desc">Warm up here, then run with us. See upcoming SAH sessions and save your spot in one click.</p>
+      <p class="card-desc">Running alone builds fitness. Running together builds the habit. Pick an upcoming SAH session, warm up with our timer, and show up. Save your spot in seconds.</p>
     </div>
     <div class="card-footer">
-      <span>See sessions on Luma</span>
+      <span>See upcoming sessions</span>
       <span class="launch-arrow">→</span>
     </div>
   </a>
-
+  
   <!-- 4. Strava club -->
-  <a class="app-card" href="https://www.strava.com/clubs/SustainableAtomicHabits" target="_blank" rel="noopener">
+  <a class="app-card" href="https://www.strava.com/clubs/SustainableAtomicHabits" target="_blank" rel="noopener" aria-label="Join the SAH club on Strava (opens in a new tab)">
     <div class="card-top">
-      <div class="card-icon icon-violet">🧡</div>
+      <div class="card-icon icon-strava">🧡</div>
       <div>
-        <div class="card-label">Community</div>
+        <div class="card-label">Stay consistent · Strava</div>
         <div class="card-title">Join the SAH Strava club</div>
       </div>
     </div>
     <div class="card-body">
-      <p class="card-desc">Log your runs, follow the club's progress and give kudos. Small habits add up faster together.</p>
+      <p class="card-desc">Log every run, follow the club's shared progress and give kudos. Small steps, repeated together, become habits that last for life.</p>
     </div>
     <div class="card-footer">
-      <span>Join on Strava</span>
+      <span>Join the club</span>
       <span class="launch-arrow">→</span>
     </div>
   </a>
+  
   <!-- 5. Diverse Diet & Sustainability App -->
   <a class="app-card" href="SAH_2_DiverseDietSustainabilityApp.html">
     <div class="card-top">
