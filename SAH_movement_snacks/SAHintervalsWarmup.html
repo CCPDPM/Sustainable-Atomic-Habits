@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interval Warm-up · SAH Movement Snacks</title>
+<meta name="description" content="A gentle, injury-aware 15-minute warm-up before running intervals, with illustrated moves and a guided timer.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== SAH Interval Warm-up — all styles scoped under .sahw ===== */
+.sahw{--bg:#f6f4ef;--paper:#fbfaf7;--ink:#1d211f;--muted:#565d59;--line:#d8d3c8;--accent:#2d6a4f;--accent-soft:#e2ece6;--accent-light:#8fd3ae;--dark-text:#eeece6;--dark-muted:#b8c1bb;
+  font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;font-size:16px;min-height:100vh}
+.sahw *{box-sizing:border-box}
+.sahw .wrap{max-width:980px;margin:0 auto;padding:0 20px}
+.sahw a{color:var(--accent);text-underline-offset:3px}
+.sahw button{font:inherit;cursor:pointer}
+.sahw :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.sahw .label{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.sahw .tab{font-variant-numeric:tabular-nums lining-nums}
+
+/* header */
+.sahw .crumbs{padding:22px 0 0;display:flex;gap:8px;align-items:center}
+.sahw .crumbs a{color:var(--muted);text-decoration:none}
+.sahw .crumbs a:hover{color:var(--accent)}
+.sahw header.hero{padding:36px 0 28px;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:end}
+.sahw h1{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:clamp(40px,7vw,68px);line-height:1;letter-spacing:-.03em;margin:12px 0 18px;text-wrap:balance}
+.sahw .standfirst{font-size:18px;color:var(--muted);max-width:34rem;margin:0;text-wrap:pretty}
+.sahw .controls{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px;align-items:center}
+.sahw .seg{display:inline-flex;border:1px solid var(--ink);border-radius:2px;overflow:hidden}
+.sahw .seg button{background:transparent;border:0;padding:9px 14px;font-size:14px;font-weight:500;color:var(--ink);transition:background .15s,color .15s}
+.sahw .seg button+button{border-left:1px solid var(--ink)}
+.sahw .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.sahw .seg button:hover:not([aria-pressed="true"]){background:var(--accent-soft)}
+.sahw .ghost{background:transparent;border:1px solid var(--line);border-radius:2px;padding:9px 14px;font-size:14px;color:var(--ink);transition:border-color .15s}
+.sahw .ghost:hover{border-color:var(--ink)}
+.sahw .ghost[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+
+/* ramp figure */
+.sahw figure.ramp{margin:0}
+.sahw .ramp svg{width:100%;height:auto;display:block}
+.sahw .ramp figcaption{margin-top:8px}
+.sahw .ramp .area{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2;stroke-linejoin:round}
+.sahw .ramp .axis{stroke:var(--ink);stroke-width:1}
+.sahw .ramp .goal{stroke:var(--ink);stroke-width:1;stroke-dasharray:4 4}
+.sahw .ramp text{font:600 9px Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase;fill:var(--muted)}
+.sahw .ramp .tick{stroke:var(--line);stroke-width:1}
+.sahw .ramp .marker{stroke:var(--ink);stroke-width:2}
+.sahw .ramp .markerdot{fill:var(--ink)}
+
+/* timer */
+.sahw .timer{position:sticky;top:0;z-index:10;background:var(--ink);color:var(--dark-text)}
+.sahw .timer .wrap{display:grid;grid-template-columns:1fr auto auto;gap:20px;align-items:center;padding-top:14px;padding-bottom:14px}
+.sahw .timer .label{color:var(--dark-muted)}
+.sahw .timer strong{display:block;font-family:"Space Grotesk",sans-serif;font-size:19px;font-weight:600;line-height:1.25;margin-top:3px}
+.sahw .timer .next{display:block;font-size:13px;color:var(--dark-muted);margin-top:2px}
+.sahw .clock{font-family:"Space Grotesk",sans-serif;font-size:40px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.sahw .ctrl{display:flex;gap:6px;flex-wrap:wrap}
+.sahw .btn{border:1px solid #4a514d;background:transparent;color:var(--dark-text);padding:9px 14px;border-radius:2px;font-size:14px;font-weight:500;transition:border-color .15s,background .15s}
+.sahw .btn:hover{border-color:var(--dark-text)}
+.sahw .btn.primary{background:var(--dark-text);color:var(--ink);border-color:var(--dark-text);min-width:92px}
+.sahw .btn.primary:hover{background:#fff}
+.sahw .btn i{margin-right:6px}
+.sahw .bar{height:3px;background:#3a403c}
+.sahw .bar span{display:block;height:100%;width:0;background:var(--accent-light);transition:width .25s linear}
+
+/* phases + steps */
+.sahw main{padding:12px 0 40px}
+.sahw .phase{padding-top:44px}
+.sahw .phase-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding-bottom:12px;border-bottom:2px solid var(--ink)}
+.sahw .phase-head h2{font-family:"Space Grotesk",sans-serif;font-size:26px;font-weight:600;letter-spacing:-.01em;margin:4px 0 0}
+.sahw .step{display:grid;grid-template-columns:190px 1fr;gap:28px;padding:26px 0;border-bottom:1px solid var(--line);transition:opacity .2s}
+.sahw .step-fig{background:var(--paper);border:1px solid var(--line);border-radius:2px;padding:8px;transition:background .2s,border-color .2s;align-self:start}
+.sahw .step-fig svg{width:100%;height:auto;display:block}
+.sahw .step-meta{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
+.sahw .dose{font-size:13px;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}
+.sahw .now-tag{display:none;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:var(--accent);color:#fff;padding:3px 7px;border-radius:2px}
+.sahw .step h3{font-family:"Space Grotesk",sans-serif;font-size:22px;font-weight:600;margin:8px 0 10px;letter-spacing:-.01em;text-wrap:balance}
+.sahw .cues{margin:0;padding:0;list-style:none;max-width:36rem}
+.sahw .cues li{position:relative;padding-left:20px;margin:5px 0;text-wrap:pretty}
+.sahw .cues li::before{content:"";position:absolute;left:2px;top:.62em;width:8px;height:2px;background:var(--accent)}
+.sahw .ease{margin:12px 0 0;font-size:14px;color:var(--muted);max-width:36rem}
+.sahw .ease b{color:var(--ink);font-weight:600}
+.sahw .start-here{margin-top:14px;background:none;border:0;padding:0;color:var(--accent);font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.sahw .start-here:hover{color:var(--ink)}
+.sahw .step.is-active .step-fig{background:var(--accent-soft);border-color:var(--accent)}
+.sahw .step.is-active .now-tag{display:inline-block}
+.sahw .step.is-done h3{color:var(--muted)}
+.sahw .step.is-done h3::after{content:"\f00c";font-family:"Font Awesome 6 Free";font-weight:900;font-size:15px;color:var(--accent);margin-left:10px}
+.sahw .step.is-skipped{opacity:.4}
+.sahw .step.is-skipped .start-here{display:none}
+.sahw .skipnote{display:none;font-size:13px;color:var(--muted);margin-top:10px}
+.sahw .step.is-skipped .skipnote{display:block}
+
+/* rules band */
+.sahw .rules{background:#ebe7de;padding:52px 0;margin-top:20px}
+.sahw .rules .wrap{display:grid;grid-template-columns:.8fr 1.2fr;gap:40px}
+.sahw .rules h2{font-family:"Space Grotesk",sans-serif;font-size:32px;line-height:1.1;font-weight:600;letter-spacing:-.02em;margin:10px 0 0;text-wrap:balance}
+.sahw dl{margin:0}
+.sahw dl div{display:grid;grid-template-columns:170px 1fr;gap:16px;padding:14px 0;border-bottom:1px solid var(--line)}
+.sahw dl div:first-child{border-top:1px solid var(--line)}
+.sahw dt{font-weight:600}
+.sahw dd{margin:0;color:var(--muted);text-wrap:pretty}
+.sahw footer{padding:28px 0 40px;font-size:13px;color:var(--muted)}
+.sahw footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.sahw .kbd{font-family:ui-monospace,monospace;font-size:12px;border:1px solid var(--line);padding:1px 5px;border-radius:2px;color:var(--ink)}
+.sahw .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* ===== cartoon figures ===== */
+.sahw .fig g{transform-box:view-box}
+.sahw .fig line{stroke:var(--ink);stroke-width:7;stroke-linecap:round}
+.sahw .fig .b line{stroke:#a6aea8}
+.sahw .fig-front .b line{stroke:var(--ink)}
+.sahw .fig .head{fill:var(--paper);stroke:var(--ink);stroke-width:5}
+.sahw .fig line.ground{stroke:var(--line);stroke-width:2;stroke-linecap:butt}
+.sahw .fig .prop{fill:#c4bcad}
+.sahw .fig .speed line{stroke:var(--accent);stroke-width:3}
+
+/* jog */
+.sahw .fig-jog .body{animation:hop3 var(--d) ease-in-out infinite}
+.sahw .fig-jog .upper{transform:rotate(6deg)}
+.sahw .fig-jog .thigh{animation:jog-thigh var(--d) ease-in-out infinite}
+.sahw .fig-jog .shin{animation:jog-shin var(--d) ease-in-out infinite}
+.sahw .fig-jog .uarm{animation:jog-arm var(--d) ease-in-out infinite}
+.sahw .fig-jog .farm{transform:rotate(-80deg)}
+/* strides */
+.sahw .fig-strides .body{animation:hop5 var(--d) ease-in-out infinite}
+.sahw .fig-strides .upper{transform:rotate(11deg)}
+.sahw .fig-strides .thigh{animation:st-thigh var(--d) ease-in-out infinite}
+.sahw .fig-strides .shin{animation:st-shin var(--d) ease-in-out infinite}
+.sahw .fig-strides .uarm{animation:st-arm var(--d) ease-in-out infinite}
+.sahw .fig-strides .farm{transform:rotate(-90deg)}
+/* leg swing front-back */
+.sahw .fig-swingf .thigh.f{animation:swf-thigh var(--d) ease-in-out infinite}
+.sahw .fig-swingf .shin.f{animation:swf-shin var(--d) ease-in-out infinite}
+.sahw .fig-swingf .uarm.f{transform:rotate(-75deg)}
+.sahw .fig-swingf .uarm.b{transform:rotate(8deg)}
+/* leg swing side */
+.sahw .fig-swings .thigh.f{animation:sws-thigh var(--d) ease-in-out infinite}
+.sahw .fig-swings .uarm.b{transform:rotate(62deg)}
+.sahw .fig-swings .uarm.f{transform:rotate(-12deg)}
+/* squat */
+.sahw .fig-squat .body{animation:sq-body var(--d) ease-in-out infinite}
+.sahw .fig-squat .upper{animation:sq-upper var(--d) ease-in-out infinite}
+.sahw .fig-squat .thigh{animation:sq-thigh var(--d) ease-in-out infinite}
+.sahw .fig-squat .shin{animation:sq-shin var(--d) ease-in-out infinite}
+.sahw .fig-squat .uarm{animation:sq-arm var(--d) ease-in-out infinite}
+/* calf raises */
+.sahw .fig-calf .body{animation:calf-body var(--d) ease-in-out infinite}
+.sahw .fig-calf .uarm{transform:rotate(4deg)}
+/* hip circles */
+.sahw .fig-hips .body{animation:hips-body var(--d) ease-in-out infinite}
+.sahw .fig-hips .upper{animation:hips-upper var(--d) ease-in-out infinite}
+.sahw .fig-hips .thigh{animation:hips-thigh var(--d) ease-in-out infinite}
+.sahw .fig-hips .uarm.b{transform:rotate(35deg)}
+.sahw .fig-hips .farm.b{transform:rotate(-100deg)}
+.sahw .fig-hips .uarm.f{transform:rotate(-35deg)}
+.sahw .fig-hips .farm.f{transform:rotate(100deg)}
+/* A-skips */
+.sahw .fig-askip .body{animation:hop5 var(--d) ease-in-out infinite}
+.sahw .fig-askip .upper{transform:rotate(3deg)}
+.sahw .fig-askip .thigh{animation:as-thigh var(--d) ease-in-out infinite}
+.sahw .fig-askip .shin{animation:as-shin var(--d) ease-in-out infinite}
+.sahw .fig-askip .uarm{animation:as-arm var(--d) ease-in-out infinite}
+.sahw .fig-askip .farm{transform:rotate(-80deg)}
+/* butt kicks */
+.sahw .fig-kicks .body{animation:hop3 var(--d) ease-in-out infinite}
+.sahw .fig-kicks .upper{transform:rotate(3deg)}
+.sahw .fig-kicks .thigh{animation:kk-thigh var(--d) ease-in-out infinite}
+.sahw .fig-kicks .shin{animation:kk-shin var(--d) ease-in-out infinite}
+.sahw .fig-kicks .uarm{animation:kk-arm var(--d) ease-in-out infinite}
+.sahw .fig-kicks .farm{transform:rotate(-80deg)}
+
+/* alternate far-side limbs by half a cycle; symmetric moves stay in sync */
+.sahw .fig .b{animation-delay:calc(var(--d) * -0.5)}
+.sahw .fig-squat .b,.sahw .fig-calf .b,.sahw .fig-hips .b{animation-delay:0s}
+
+/* play only when relevant: active step, hover/focus, or "animate all" */
+.sahw .fig g{animation-play-state:paused !important}
+.sahw .step.is-active .fig g,.sahw .step:hover .fig g,.sahw .step:focus-within .fig g,.sahw.play-all .fig g{animation-play-state:running !important}
+
+@keyframes hop3{0%,50%,100%{transform:translateY(0)}25%,75%{transform:translateY(-3px)}}
+@keyframes hop5{0%,50%,100%{transform:translateY(0)}25%,75%{transform:translateY(-5px)}}
+@keyframes jog-thigh{0%,100%{transform:rotate(-30deg)}50%{transform:rotate(28deg)}}
+@keyframes jog-shin{0%,100%{transform:rotate(12deg)}50%{transform:rotate(70deg)}}
+@keyframes jog-arm{0%,100%{transform:rotate(35deg)}50%{transform:rotate(-35deg)}}
+@keyframes st-thigh{0%,100%{transform:rotate(-48deg)}50%{transform:rotate(40deg)}}
+@keyframes st-shin{0%,100%{transform:rotate(15deg)}50%{transform:rotate(105deg)}}
+@keyframes st-arm{0%,100%{transform:rotate(50deg)}50%{transform:rotate(-50deg)}}
+@keyframes swf-thigh{0%,100%{transform:rotate(-55deg)}50%{transform:rotate(38deg)}}
+@keyframes swf-shin{0%,100%{transform:rotate(8deg)}50%{transform:rotate(28deg)}}
+@keyframes sws-thigh{0%,100%{transform:rotate(16deg)}50%{transform:rotate(-38deg)}}
+@keyframes sq-body{0%,100%{transform:translateY(0)}45%,55%{transform:translateY(24px)}}
+@keyframes sq-upper{0%,100%{transform:rotate(0)}45%,55%{transform:rotate(30deg)}}
+@keyframes sq-thigh{0%,100%{transform:rotate(0)}45%,55%{transform:rotate(-60deg)}}
+@keyframes sq-shin{0%,100%{transform:rotate(0)}45%,55%{transform:rotate(120deg)}}
+@keyframes sq-arm{0%,100%{transform:rotate(0)}45%,55%{transform:rotate(-110deg)}}
+@keyframes calf-body{0%,100%{transform:translateY(0)}40%,60%{transform:translateY(-7px)}}
+@keyframes hips-body{0%,100%{transform:translateX(-4px)}50%{transform:translateX(4px)}}
+@keyframes hips-upper{0%,100%{transform:rotate(7deg)}50%{transform:rotate(-7deg)}}
+@keyframes hips-thigh{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+@keyframes as-thigh{0%,100%{transform:rotate(-82deg)}50%{transform:rotate(6deg)}}
+@keyframes as-shin{0%,100%{transform:rotate(88deg)}50%{transform:rotate(2deg)}}
+@keyframes as-arm{0%,100%{transform:rotate(45deg)}50%{transform:rotate(-45deg)}}
+@keyframes kk-thigh{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(10deg)}}
+@keyframes kk-shin{0%,100%{transform:rotate(150deg)}50%{transform:rotate(8deg)}}
+@keyframes kk-arm{0%,100%{transform:rotate(30deg)}50%{transform:rotate(-30deg)}}
+
+@media (prefers-reduced-motion:reduce){
+  .sahw .fig g{animation:none !important}
+  .sahw .bar span{transition:none}
+}
+@media (max-width:760px){
+  .sahw header.hero{grid-template-columns:1fr;gap:28px}
+  .sahw .timer .wrap{grid-template-columns:1fr auto;gap:10px 16px}
+  .sahw .ctrl{grid-column:1 / -1}
+  .sahw .clock{font-size:32px}
+  .sahw .step{grid-template-columns:1fr;gap:16px}
+  .sahw .step-fig{max-width:200px}
+  .sahw .rules .wrap{grid-template-columns:1fr;gap:20px}
+  .sahw dl div{grid-template-columns:1fr;gap:4px}
+}
+</style>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body style="margin:0">
+<div class="sahw" id="SAH_intervals_warmup">
+
+  <div class="wrap">
+    <nav class="crumbs label" aria-label="Breadcrumb">
+      <a href="index.html#SAH_movement_snacks">Movement Snacks</a><span aria-hidden="true">/</span><span>Interval warm-up</span>
+    </nav>
+
+    <header class="hero">
+      <div>
+        <span class="label">SAH · Movement snack · Recovery-friendly</span>
+        <h1>Warm up before intervals, not during them.</h1>
+        <p class="standfirst">A gentle 15-minute ramp: an easy jog, joint mobility, two light drills, then strides. Each step gets you a little closer to interval pace, so your first fast rep isn't a shock to the body.</p>
+        <div class="controls">
+          <div class="seg" role="group" aria-label="Warm-up length">
+            <button type="button" data-mode="full" aria-pressed="true">Full <span class="tab" id="lenFull"></span></button>
+            <button type="button" data-mode="essentials" aria-pressed="false">Essentials <span class="tab" id="lenEss"></span></button>
+          </div>
+          <button type="button" class="ghost" id="playAll" aria-pressed="false"><i class="fa-solid fa-person-running"></i>  Animate all moves</button>
+        </div>
+      </div>
+      <figure class="ramp">
+        <svg id="ramp" viewBox="0 0 400 170" role="img" aria-label="Effort rises step by step from easy jogging to stride pace, just below interval effort."></svg>
+        <figcaption class="label">Fig. 1 — Effort over the warm-up. The marker follows the timer.</figcaption>
+      </figure>
+    </header>
+  </div>
+
+  <div class="timer" role="region" aria-label="Guided timer">
+    <div class="wrap">
+      <div>
+        <span class="label" id="tLabel">Guided timer</span>
+        <strong id="tStep">Ready when you are</strong>
+        <span class="next" id="tNext"></span>
+      </div>
+      <div class="clock tab" id="tClock" aria-live="off">0:00</div>
+      <div class="ctrl">
+        <button type="button" class="btn primary" id="tStart"><i class="fa-solid fa-play"></i>Start</button>
+        <button type="button" class="btn" id="tSkip" aria-label="Skip to next move"><i class="fa-solid fa-forward-step"></i>Next</button>
+        <button type="button" class="btn" id="tReset" aria-label="Reset timer"><i class="fa-solid fa-rotate-left"></i>Reset</button>
+        <button type="button" class="btn" id="tSound" aria-pressed="true" aria-label="Toggle sound cues"><i class="fa-solid fa-volume-high"></i>Sound</button>
+      </div>
+    </div>
+    <div class="bar"><span id="tFill"></span></div>
+  </div>
+
+  <main class="wrap" id="steps"></main>
+
+  <section class="rules" aria-labelledby="rulesTitle">
+    <div class="wrap">
+      <div>
+        <span class="label">While you're recovering</span>
+        <h2 id="rulesTitle">Five rules that matter more than any single drill.</h2>
+      </div>
+      <dl>
+        <div><dt>The pain rule</dt><dd>Sharp or worsening pain means stop. Mild stiffness that eases as you warm up is usually fine.</dd></div>
+        <div><dt>First interval</dt><dd>Run it a notch easier than planned. Let rep two be the first one at full target pace.</dd></div>
+        <div><dt>Static stretching</dt><dd>Save long holds for after the session. Before you run, keep everything moving.</dd></div>
+        <div><dt>Short on time</dt><dd>Keep the easy jog and the strides. Switch to <a href="#" id="essLink">Essentials</a> and the timer handles the rest.</dd></div>
+        <div><dt>Under care</dt><dd>If you're seeing a physio for this injury, check with them before you go back to interval training.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <span>General movement guidance, not medical advice.</span>
+      <span>Keyboard: <span class="kbd">Space</span> start/pause · <span class="kbd">N</span> next move</span>
+    </div>
+  </footer>
+
+  <div class="sr" aria-live="polite" id="live"></div>
+</div>
+
+<script>
+(function(){
+  var PHASES = {
+    1:{name:'Raise the pulse', short:'Raise'},
+    2:{name:'Mobilise the joints', short:'Mobilise'},
+    3:{name:'Activate with drills', short:'Drills'},
+    4:{name:'Prime for speed', short:'Strides'}
+  };
+  var LEVEL = {1:1, 2:1.4, 3:2.4, 4:4};
+
+  var STEPS = [
+    {id:'jog', phase:1, title:'Easy jog or brisk walk', dose:'5–10 min', secs:360, fig:'jog', d:'1s', essential:true,
+      cues:['Conversational pace: you could talk in full sentences','Start walking if you feel stiff, then build into a shuffle jog','Relaxed shoulders, short quick steps'],
+      ease:'Stay at a walk if the injured area complains.'},
+    {id:'swingf', phase:2, title:'Leg swings, front to back', dose:'10 per leg', secs:45, fig:'swingf', d:'1.6s',
+      cues:['Hold a wall, fence or tree for balance','Let the leg swing like a pendulum, without forcing the range','Start small and widen gradually'],
+      ease:'Keep the standing knee soft.'},
+    {id:'swings', phase:2, title:'Leg swings, side to side', dose:'10 per leg', secs:45, fig:'swings', d:'1.6s',
+      cues:['Face your support and swing across the body, then out','Keep your hips square and your torso tall','Small arcs first'],
+      ease:'Reduce the arc if your groin or outer hip pulls.'},
+    {id:'squat', phase:2, title:'Shallow squats or walking lunges', dose:'10 reps', secs:45, fig:'squat', d:'2.4s',
+      cues:['Only go as deep as feels easy','Knees track in line with your toes','Push through the whole foot to stand'],
+      ease:'Use a quarter-depth squat if lunges feel unstable.'},
+    {id:'calf', phase:2, title:'Calf raises and ankle circles', dose:'10 raises + 5 circles each way', secs:40, fig:'calf', d:'1.6s',
+      cues:['Rise slowly onto the balls of your feet, then lower with control','Draw circles with each ankle','Hold a support if balance is off'],
+      ease:'Important if you are coming back from a calf, Achilles or ankle injury.'},
+    {id:'hips', phase:2, title:'Hip circles', dose:'5 each direction', secs:30, fig:'hips', d:'2s',
+      cues:['Hands on hips, feet hip-width apart','Draw slow, wide circles with the pelvis','Breathe. Nothing should pinch'],
+      ease:'Make the circles smaller if your lower back objects.'},
+    {id:'askip', phase:3, title:'A-skips', dose:'2 × 15–20 m', secs:60, fig:'askip', d:'0.9s',
+      cues:['Skip lightly, driving one knee up towards hip height','Land on the ball of the foot, under your hip','The opposite arm drives forward'],
+      ease:'Swap for a high-knee march if skipping feels like too much.'},
+    {id:'kicks', phase:3, title:'Butt kicks', dose:'2 × 15–20 m', secs:60, fig:'kicks', d:'0.8s',
+      cues:['Quick, light heel flicks towards your glutes','Stay tall and travel forward only a little','Keep it gentle. This is not a sprint'],
+      ease:'Skip this one if your hamstring or knee is the injured area.'},
+    {id:'strides', phase:4, title:'Strides', dose:'4 × 20 s + walk back', secs:240, fig:'strides', d:'0.7s', essential:true,
+      cues:['Build smoothly from jog to interval pace over the first half','Hold relaxed speed, then ease off','Walk back to the start and recover fully'],
+      ease:'The step that matters most for preventing injury. Never jump straight into intervals cold.'}
+  ];
+
+  /* ---------- figure builder ---------- */
+  function leg(x, side, foot){
+    return '<g class="thigh '+side+'" style="transform-origin:'+x+'px 80px"><line x1="'+x+'" y1="80" x2="'+x+'" y2="104"/>'+
+      '<g class="shin '+side+'" style="transform-origin:'+x+'px 104px"><line x1="'+x+'" y1="104" x2="'+x+'" y2="127"/><line x1="'+x+'" y1="127" x2="'+(x+foot)+'" y2="127"/></g></g>';
+  }
+  function arm(x, side){
+    return '<g class="uarm '+side+'" style="transform-origin:'+x+'px 46px"><line x1="'+x+'" y1="46" x2="'+x+'" y2="62"/>'+
+      '<g class="farm '+side+'" style="transform-origin:'+x+'px 62px"><line x1="'+x+'" y1="62" x2="'+x+'" y2="77"/></g></g>';
+  }
+  function figure(s){
+    var kind = s.fig, front = (kind==='swings' || kind==='hips'), extras = '', inner;
+    if(kind==='swingf') extras = '<rect class="prop" x="91" y="36" width="6" height="94"/>';
+    if(kind==='swings') extras = '<rect class="prop" x="18" y="36" width="6" height="94"/>';
+    if(kind==='strides') extras = '<g class="speed"><line x1="12" y1="52" x2="30" y2="52"/><line x1="4" y1="66" x2="28" y2="66"/><line x1="14" y1="80" x2="30" y2="80"/></g>';
+    var up = 'style="transform-origin:60px 80px"';
+    if(front){
+      inner = '<g class="body"><line x1="54" y1="80" x2="66" y2="80"/>'+leg(54,'b',-6)+leg(66,'f',6)+
+        '<g class="upper" '+up+'><line x1="60" y1="80" x2="60" y2="41"/><line x1="50" y1="46" x2="70" y2="46"/>'+arm(50,'b')+arm(70,'f')+
+        '<circle class="head" cx="60" cy="30" r="10"/></g></g>';
+    } else {
+      inner = '<g class="body"><g class="upper" '+up+'>'+arm(60,'b')+'</g>'+leg(60,'b',8)+leg(60,'f',8)+
+        '<g class="upper" '+up+'><line x1="60" y1="80" x2="60" y2="40"/><circle class="head" cx="60" cy="28" r="10"/>'+arm(60,'f')+'</g></g>';
+    }
+    return '<svg class="fig fig-'+kind+(front?' fig-front':'')+'" style="--d:'+s.d+'" viewBox="0 0 120 140" role="img" aria-label="Cartoon figure demonstrating '+s.title.toLowerCase()+'">'+
+      '<line class="ground" x1="8" y1="131" x2="112" y2="131"/>'+extras+inner+'</svg>';
+  }
+
+  /* ---------- render steps ---------- */
+  var main = document.getElementById('steps');
+  var html = '', lastPhase = 0;
+  STEPS.forEach(function(s, i){
+    if(s.phase !== lastPhase){
+      if(lastPhase) html += '</section>';
+      var phaseSecs = STEPS.filter(function(x){return x.phase===s.phase;}).reduce(function(a,x){return a+x.secs;},0);
+      html += '<section class="phase" aria-labelledby="ph'+s.phase+'"><div class="phase-head"><div><span class="label">Phase '+s.phase+' of 4</span>'+
+        '<h2 id="ph'+s.phase+'">'+PHASES[s.phase].name+'</h2></div><span class="label tab">≈ '+Math.round(phaseSecs/60*2)/2+' min</span></div>';
+      lastPhase = s.phase;
+    }
+    var num = (i+1<10?'0':'')+(i+1);
+    html += '<article class="step" id="step-'+s.id+'" data-id="'+s.id+'">'+
+      '<div class="step-fig">'+figure(s)+'</div>'+
+      '<div class="step-body"><div class="step-meta"><span class="label tab">'+num+' · '+PHASES[s.phase].short+'</span><span class="dose">'+s.dose+'</span><span class="now-tag">Now</span></div>'+
+      '<h3>'+s.title+'</h3><ul class="cues">'+s.cues.map(function(c){return '<li>'+c+'</li>';}).join('')+'</ul>'+
+      '<p class="ease"><b>Ease off:</b> '+s.ease+'</p>'+
+      '<button type="button" class="start-here" data-id="'+s.id+'">Start timer here</button>'+
+      '<p class="skipnote">Not included in Essentials mode.</p></div></article>';
+  });
+  html += '</section>';
+  main.innerHTML = html;
+
+  /* ---------- state ---------- */
+  var mode = 'full', plan = [], idx = -1, remaining = 0, running = false, endAt = 0, timerId = null, sound = true, subKey = '', audioCtx = null;
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $ = function(id){return document.getElementById(id);};
+
+  function fmt(sec){ sec = Math.max(0, Math.ceil(sec)); var m = Math.floor(sec/60), s = sec%60; return m+':'+(s<10?'0':'')+s; }
+  function total(p){ return p.reduce(function(a,s){return a+s.secs;},0); }
+  function buildPlan(){ plan = STEPS.filter(function(s){return mode==='full' || s.essential;}); }
+  function announce(t){ $('live').textContent = t; }
+
+  $('lenFull').textContent = '· '+Math.round(total(STEPS)/60)+' min';
+  $('lenEss').textContent = '· '+Math.round(total(STEPS.filter(function(s){return s.essential;}))/60)+' min';
+
+  function beep(freq, len){
+    if(!sound) return;
+    try{
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.frequency.value = freq || 880; o.type = 'sine';
+      g.gain.setValueAtTime(0.18, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + (len || 0.25));
+      o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + (len || 0.25));
+    }catch(e){}
+  }
+
+  /* ---------- ramp figure ---------- */
+  var RX0 = 34, RW = 352, BASE = 130, UNIT = 25;
+  function renderRamp(){
+    var T = total(plan), x = RX0, d = 'M'+RX0+' '+BASE, labels = '', ticks = '', spans = {};
+    plan.forEach(function(s){
+      var w = s.secs/T*RW;
+      if(!spans[s.phase]) spans[s.phase] = {from:x, to:x+w}; else spans[s.phase].to = x+w;
+      if(s.id==='strides'){
+        var seg = w/4, hi = BASE-LEVEL[4]*UNIT, lo = BASE-1*UNIT;
+        for(var r=0;r<4;r++){ d += ' L'+x+' '+lo+' L'+(x+seg*0.12)+' '+hi+' L'+(x+seg*0.33)+' '+hi+' L'+(x+seg*0.4)+' '+lo+' L'+(x+seg)+' '+lo; x += seg; }
+      } else {
+        var y = BASE-LEVEL[s.phase]*UNIT; d += ' L'+x+' '+y+' L'+(x+w)+' '+y; x += w;
+      }
+    });
+    d += ' L'+x+' '+BASE+' Z';
+    Object.keys(spans).forEach(function(p){
+      var sp = spans[p], mid = (sp.from+sp.to)/2;
+      ticks += '<line class="tick" x1="'+sp.from+'" y1="'+(BASE+2)+'" x2="'+sp.from+'" y2="'+(BASE+8)+'"/>';
+      if(sp.to - sp.from > 34) labels += '<text x="'+mid+'" y="'+(BASE+20)+'" text-anchor="middle">'+PHASES[p].short+'</text>';
+    });
+    var goalY = BASE - 4.5*UNIT;
+    $('ramp').innerHTML =
+      '<line class="goal" x1="'+RX0+'" y1="'+goalY+'" x2="'+(RX0+RW)+'" y2="'+goalY+'"/>'+
+      '<text x="'+(RX0+RW)+'" y="'+(goalY-6)+'" text-anchor="end">Interval effort</text>'+
+      '<path class="area" d="'+d+'"/>'+
+      '<line class="axis" x1="'+RX0+'" y1="'+BASE+'" x2="'+(RX0+RW)+'" y2="'+BASE+'"/>'+ticks+labels+
+      '<text x="'+(RX0-6)+'" y="'+(BASE-UNIT+3)+'" text-anchor="end">Easy</text>'+
+      '<text x="'+(RX0+RW)+'" y="'+(BASE+34)+'" text-anchor="end" class="tab">'+fmt(T)+' total</text>'+
+      '<g id="rampMarker" style="display:none"><line class="marker" x1="0" y1="'+(goalY+4)+'" x2="0" y2="'+BASE+'"/><circle class="markerdot" cx="0" cy="'+BASE+'" r="4"/></g>';
+  }
+
+  /* ---------- timer render ---------- */
+  function elapsedTotal(){
+    if(idx < 0) return 0;
+    if(idx >= plan.length) return total(plan);
+    var e = 0; for(var i=0;i<idx;i++) e += plan[i].secs;
+    return e + (plan[idx].secs - remaining);
+  }
+  function stridesSub(){
+    var s = plan[idx]; if(!s || s.id!=='strides') return null;
+    var el = Math.max(0, s.secs - remaining), rep = Math.min(4, Math.floor(el/60)+1), inCycle = el % 60;
+    var striding = inCycle < 20;
+    return {key: rep+(striding?'s':'w'), text:'Rep '+rep+' of 4 · '+(striding?'Stride: build smoothly to interval pace':'Walk back: recover fully')};
+  }
+  function render(){
+    var T = total(plan), done = idx >= plan.length, cur = plan[idx];
+    $('tStep').textContent = idx < 0 ? 'Ready when you are' : done ? 'Warm-up complete' : cur.title;
+    $('tLabel').textContent = idx < 0 ? 'Guided timer · '+(mode==='full'?'Full':'Essentials') : done ? 'Done' : 'Move '+(idx+1)+' of '+plan.length+' · '+cur.dose;
+    $('tClock').textContent = idx < 0 ? fmt(T) : done ? '0:00' : fmt(remaining);
+    var sub = (!done && idx >= 0) ? stridesSub() : null;
+    $('tNext').textContent = idx < 0 ? plan.length+' moves, '+fmt(T)+' total. Press Start or pick a move below.' :
+      done ? 'Make your first interval a notch easier than planned.' :
+      sub ? sub.text : 'Next: '+(plan[idx+1] ? plan[idx+1].title : 'your intervals');
+    var sb = $('tStart');
+    sb.innerHTML = running ? '<i class="fa-solid fa-pause"></i>Pause' : done ? '<i class="fa-solid fa-rotate-right"></i>Again' : (idx >= 0 ? '<i class="fa-solid fa-play"></i>Resume' : '<i class="fa-solid fa-play"></i>Start');
+    var frac = T ? elapsedTotal()/T : 0;
+    $('tFill').style.width = (frac*100)+'%';
+    var m = $('rampMarker');
+    if(m){ if(idx >= 0){ m.style.display=''; m.setAttribute('transform','translate('+(RX0+frac*RW)+',0)'); } else m.style.display='none'; }
+    STEPS.forEach(function(s){
+      var el = document.getElementById('step-'+s.id), pi = plan.indexOf(s);
+      el.classList.toggle('is-skipped', pi === -1);
+      el.classList.toggle('is-active', pi !== -1 && pi === idx && !done);
+      el.classList.toggle('is-done', pi !== -1 && (pi < idx || done));
+    });
+  }
+
+  function scrollToCurrent(){
+    var s = plan[idx]; if(!s) return;
+    document.getElementById('step-'+s.id).scrollIntoView({behavior: reduceMotion ? 'auto' : 'smooth', block:'center'});
+  }
+  function goTo(i){
+    idx = i; subKey = '';
+    if(idx >= plan.length){ finish(); return; }
+    remaining = plan[idx].secs; endAt = Date.now() + remaining*1000;
+    announce('Now: '+plan[idx].title+', '+plan[idx].dose);
+    scrollToCurrent();
+  }
+  function tick(){
+    remaining = Math.max(0, (endAt - Date.now())/1000);
+    var sub = stridesSub();
+    if(sub){ if(subKey && sub.key !== subKey) { beep(sub.key.slice(-1)==='s' ? 990 : 660, 0.2); announce(sub.text); } subKey = sub.key; }
+    if(remaining <= 0){ beep(880, 0.35); goTo(idx+1); }
+    render();
+  }
+  function start(){
+    if(idx >= plan.length) idx = -1;
+    if(idx < 0) goTo(0);
+    running = true; endAt = Date.now() + remaining*1000;
+    clearInterval(timerId); timerId = setInterval(tick, 250);
+    beep(660, 0.12); render();
+  }
+  function pause(){
+    remaining = Math.max(0, (endAt - Date.now())/1000);
+    running = false; clearInterval(timerId); announce('Paused'); render();
+  }
+  function finish(){
+    running = false; clearInterval(timerId); idx = plan.length; remaining = 0;
+    beep(1046, 0.5); announce('Warm-up complete. Ease into your first interval.'); render();
+  }
+  function reset(){
+    running = false; clearInterval(timerId); idx = -1; remaining = 0; subKey = ''; render();
+  }
+  function skip(){
+    if(idx >= plan.length) return;
+    var wasRunning = running;
+    goTo(idx < 0 ? 0 : idx+1);
+    if(idx < plan.length && !wasRunning){ running = false; }
+    render();
+  }
+  function setMode(m){
+    if(m === mode) return;
+    mode = m; buildPlan(); reset(); renderRamp(); render();
+    document.querySelectorAll('.seg button').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.mode === mode ? 'true' : 'false'); });
+    announce((mode==='full' ? 'Full warm-up' : 'Essentials only')+' selected. Timer reset.');
+  }
+
+  /* ---------- events ---------- */
+  $('tStart').addEventListener('click', function(){ running ? pause() : start(); });
+  $('tSkip').addEventListener('click', skip);
+  $('tReset').addEventListener('click', function(){ reset(); announce('Timer reset'); });
+  $('tSound').addEventListener('click', function(){
+    sound = !sound; this.setAttribute('aria-pressed', sound);
+    this.innerHTML = sound ? '<i class="fa-solid fa-volume-high"></i>Sound' : '<i class="fa-solid fa-volume-xmark"></i>Muted';
+  });
+  $('playAll').addEventListener('click', function(){
+    var on = this.getAttribute('aria-pressed') !== 'true';
+    this.setAttribute('aria-pressed', on);
+    document.getElementById('SAH_intervals_warmup').classList.toggle('play-all', on);
+  });
+  document.querySelectorAll('.seg button').forEach(function(b){ b.addEventListener('click', function(){ setMode(b.dataset.mode); }); });
+  $('essLink').addEventListener('click', function(e){ e.preventDefault(); setMode('essentials'); window.scrollTo({top:0, behavior: reduceMotion?'auto':'smooth'}); });
+  main.addEventListener('click', function(e){
+    var b = e.target.closest('.start-here'); if(!b) return;
+    var s = STEPS.filter(function(x){return x.id===b.dataset.id;})[0], i = plan.indexOf(s);
+    if(i < 0) return;
+    goTo(i); running = true; endAt = Date.now() + remaining*1000;
+    clearInterval(timerId); timerId = setInterval(tick, 250); beep(660, 0.12); render();
+  });
+  document.addEventListener('keydown', function(e){
+    var tag = (e.target.tagName || '').toUpperCase();
+    if(['INPUT','TEXTAREA','SELECT','BUTTON','A'].indexOf(tag) !== -1) return;
+    if(e.code === 'Space'){ e.preventDefault(); running ? pause() : start(); }
+    if(e.key === 'n' || e.key === 'N') skip();
+  });
+
+  buildPlan(); renderRamp(); render();
+})();
+</script>
+</body>
+</html>
