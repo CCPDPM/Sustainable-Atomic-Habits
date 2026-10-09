@@ -385,6 +385,7 @@
   <button class="filter-btn" onclick="filterRecipes('High-Fibre', this)">🌾 High-Fibre</button>
   <button class="filter-btn" onclick="filterRecipes('Bread', this)">🍞 Bread</button>
   <button class="filter-btn" onclick="filterRecipes('Dip', this)">🫘 Dips & Spreads</button>
+  <button class="filter-btn" onclick="filterRecipes('Bar', this)">🍫 Protein^X Bars</button>
 </div>
 
 <!-- RECIPE GRID (rendered by JS from RECIPES array below) -->
@@ -1081,7 +1082,246 @@ const RECIPES = [
       }
     ],
     tips: "Beluga lentils stay firm where other lentils turn mushy — but don't overcook them either; 25 minutes max keeps a pleasant bite. Toast the almonds dry in a pan until fragrant, it makes all the difference. The bowl keeps well: store components separately for up to 3 days and assemble fresh — the lemon-tahini drizzle doubles as a dressing for leftovers. For extra omega-3, swap the almonds for toasted walnuts."
-  }
+  },
+{
+  id:       "proteinx-1-midnight-cacao",
+  title:    "Protein^X #1 — Midnight Cacao Nut",
+  subtitle: "Dark cacao · Toasted almond & seeds · Cinnamon",
+  emoji:    "🍫",
+  tags:     ["High-Protein", "High-Fibre", "Bar"],
+  protein:  "~25g / bar",
+  fibre:    "~8g / bar",
+  co2:      "~0.4 kg CO₂eq saved vs whey bar",
+  time:     "25 min + chill",
+  servings: "10 bars",
+  intro:    "The indulgent one of the Protein^X trio: pea + soy protein, 13 plants, polyphenol-rich raw cacao and five seeds for crunch. Tastes like a grown-up brownie with 25 g protein and ~8 g of diverse fibre per ~78 g bar.",
+  ingredientGroups: [
+    {
+      heading: "Ingredients (batch of 10 bars)",
+      items: [
+        "165g pea protein isolate",
+        "60g soy protein crisps",
+        "50g hemp seeds",
+        "50g almonds, toasted & roughly chopped",
+        "50g pumpkin seeds",
+        "60g tahini",
+        "20g sesame seeds, toasted",
+        "50g oats",
+        "30g flaxseed, ground",
+        "30g chia seeds",
+        "100g date paste",
+        "30g raw cacao powder + 20g cacao nibs",
+        "20g desiccated coconut",
+        "30g maple syrup · 3g cinnamon · 5g vanilla · 3g sea salt"
+      ]
+    }
+  ],
+  methodSteps: [
+    {
+      heading: "Make the bars",
+      steps: [
+        "Toast almonds, pumpkin and sesame seeds at 170°C for 8–10 min until fragrant.",
+        "Warm date paste, tahini and maple gently; whisk in pea protein, cacao, cinnamon, vanilla and salt until a stiff dough forms.",
+        "Fold in oats, hemp, flax, chia, soy crisps, cacao nibs and the toasted nuts/seeds.",
+        "Press firmly into a lined 20×20cm tin; chill 1 h, then cut into 10 bars (~78g each).",
+        "Optional: dip in 70% dark chocolate. Keeps refrigerated up to 10 days or frozen 2 months."
+      ]
+    }
+  ],
+  tips: "💡 Per-bar estimate: 340 kcal · 25g protein · 8g fibre · 22g carbs · 17g fat · 13 plants. Fibre variety: mucilage (chia/flax), insoluble bran (oat, almond skin), prebiotics + polyphenols (cacao, cinnamon). ALA omega-3 ≈ 3g from flax/chia/hemp."
+},
+
+{
+  id:       "proteinx-2-golden-antiinflammatory",
+  title:    "Protein^X #2 — Golden Anti-Inflammatory",
+  subtitle: "Turmeric & cardamom · Tart cherry · Quinoa crunch",
+  emoji:    "✨",
+  tags:     ["High-Protein", "High-Fibre", "Bar"],
+  protein:  "~25g / bar",
+  fibre:    "~7g / bar",
+  co2:      "~0.4 kg CO₂eq saved vs whey bar",
+  time:     "25 min + chill",
+  servings: "10 bars",
+  intro:    "The inflammaging fighter: curcumin, gingerol and tart-cherry anthocyanins on a pea + soy protein base with puffed quinoa and toasted buckwheat. 15 plants, 25 g protein and a triple anti-inflammatory axis per ~75 g bar.",
+  ingredientGroups: [
+    {
+      heading: "Ingredients (batch of 10 bars)",
+      items: [
+        "170g pea protein isolate",
+        "120g soy protein crisps",
+        "60g cashew butter",
+        "40g puffed quinoa",
+        "50g buckwheat groats, toasted",
+        "45g flaxseed, ground",
+        "45g chia seeds",
+        "50g dried tart cherries",
+        "85g date paste",
+        "25g desiccated coconut",
+        "25g sesame seeds",
+        "5g turmeric · 4g ginger · 3g cardamom · 3g cinnamon",
+        "25g maple syrup · 5g vanilla · 1g black pepper · 3g sea salt"
+      ]
+    }
+  ],
+  methodSteps: [
+    {
+      heading: "Make the bars",
+      steps: [
+        "Toast buckwheat, sesame and puffed quinoa separately until golden and nutty.",
+        "Warm date paste, cashew butter and maple; whisk in pea protein, turmeric, ginger, cardamom, cinnamon, black pepper and salt.",
+        "Fold in flax, chia, soy crisps, tart cherries and the toasted grains/seeds.",
+        "Press into a lined tin, chill 1 h, cut into 10 bars (~75g each).",
+        "Store refrigerated up to 10 days; freeze for up to 2 months."
+      ]
+    }
+  ],
+  tips: "💡 Per-bar estimate: 300 kcal · 25g protein · 7g fibre · 28g carbs · 10g fat · 15 plants. Black pepper (piperine) boosts curcumin uptake. Turmeric stains — use silicone tools."
+},
+
+{
+  id:       "proteinx-3-nordic-berry-rye",
+  title:    "Protein^X #3 — Nordic Berry Rye",
+  subtitle: "Rye & buckwheat · Raspberry-blueberry · Walnut",
+  emoji:    "🫐",
+  tags:     ["High-Protein", "High-Fibre", "Bar"],
+  protein:  "~25g / bar",
+  fibre:    "~9g / bar",
+  co2:      "~0.4 kg CO₂eq saved vs whey bar",
+  time:     "30 min + chill",
+  servings: "10 bars",
+  intro:    "The gut-health maximalist: rice + pea protein (hypoallergenic classic duo), rye beta-glucan, buckwheat resistant starch, and freeze-dried berries + walnuts for polyphenols. 15 plants and the highest fibre of the trio (~9g) per ~77g bar.",
+  ingredientGroups: [
+    {
+      heading: "Ingredients (batch of 10 bars)",
+      items: [
+        "150g rice protein isolate",
+        "85g pea protein isolate",
+        "55g rye flakes",
+        "55g buckwheat groats, toasted",
+        "50g sunflower seeds",
+        "45g pumpkin seeds",
+        "25g sesame seeds",
+        "30g flaxseed, ground",
+        "30g chia seeds",
+        "30g freeze-dried raspberries",
+        "25g freeze-dried blueberries",
+        "30g walnuts, toasted",
+        "85g date paste",
+        "40g dried apple rings, chopped",
+        "25g maple syrup · 3g cinnamon · 5g vanilla · 3g sea salt"
+      ]
+    }
+  ],
+  methodSteps: [
+    {
+      heading: "Make the bars",
+      steps: [
+        "Toast buckwheat, sunflower, pumpkin, sesame and walnuts at 170°C for 8–10 min.",
+        "Warm date paste and maple; whisk in rice + pea protein, cinnamon, vanilla and salt (add 2–3 tbsp water — rice protein absorbs a lot).",
+        "Fold in rye flakes, buckwheat, seeds, walnuts and crushed freeze-dried berries (keep some visible).",
+        "Press into a lined tin, chill 1 h, cut into 10 bars (~77g each).",
+        "Store refrigerated up to 10 days; freeze for up to 2 months."
+      ]
+    }
+  ],
+  tips: "💡 Per-bar estimate: 310 kcal · 25g protein · 9g fibre · 28g carbs · 11g fat · 15 plants. Berry ellagitannins are converted by gut microbes to urolithins — a signature anti-inflammaging pathway. Highest ALA omega-3 of the trio."
+},
+
+{
+  id:       "proteinx-4-umami-garden-savoury",
+  title:    "Protein^X #4 — Umami Garden (Savoury)",
+  subtitle: "Miso & nutritional yeast · Olive & tomato · Amaranth crunch",
+  emoji:    "🧂",
+  tags:     ["High-Protein", "High-Fibre", "Bar"],
+  protein:  "~28g / bar",
+  fibre:    "~7.5g / bar",
+  co2:      "~0.4 kg CO₂eq saved vs whey bar",
+  time:     "30 min + chill",
+  servings: "10 bars",
+  intro:    "The white raven: a genuinely savoury protein bar — no dates, no chocolate. Umami from miso, nutritional yeast and tomato; Mediterranean salinity from olives; popped-amaranth crunch. 28g protein and 13 plants per ~75g bar.",
+  ingredientGroups: [
+    {
+      heading: "Ingredients (batch of 10 bars)",
+      items: [
+        "170g pea protein isolate",
+        "70g soy protein crisps",
+        "55g popped amaranth",
+        "55g roasted chickpeas, crushed",
+        "45g pumpkin seeds",
+        "45g sunflower seeds",
+        "25g sesame seeds + 85g tahini",
+        "30g flaxseed, ground",
+        "25g chia seeds",
+        "35g green olives, finely chopped",
+        "15g sun-dried tomato powder",
+        "20g white miso paste",
+        "55g nutritional yeast",
+        "15ml olive oil · 4g dried oregano & rosemary · 3g sea salt"
+      ]
+    }
+  ],
+  methodSteps: [
+    {
+      heading: "Make the bars",
+      steps: [
+        "Pop amaranth in a very hot dry lidded pan (15–20s per tablespoon); toast pumpkin, sunflower and sesame seeds.",
+        "Warm tahini, miso and olive oil; whisk in pea protein, tomato powder, nutritional yeast, herbs and salt (add 2–3 tbsp water for a stiff dough).",
+        "Fold in soy crisps, popped amaranth, chickpeas, olives, flax, chia and toasted seeds.",
+        "Press into a lined tin, chill 1 h, cut into 10 bars (~75g each).",
+        "Keeps refrigerated up to 7 days; freeze for up to 2 months."
+      ]
+    }
+  ],
+  tips: "💡 Per-bar estimate: 330 kcal · 28g protein · 7.5g fibre · 19g carbs · 16g fat · 13 plants. Nutritional yeast adds β-glucans (1,3/1,6) — the fibre class linked to immune modulation. A savoury bar suits post-workout rehydration better than sweet ones."
+},
+
+{
+  id:       "proteinx-5-mole-chilli-heat",
+  title:    "Protein^X #5 — Mole Chilli Heat",
+  subtitle: "Dark cacao · Chipotle & cayenne · Peanut-amaranth crunch",
+  emoji:    "🌶️",
+  tags:     ["High-Protein", "High-Fibre", "Bar"],
+  protein:  "~25g / bar",
+  fibre:    "~8g / bar",
+  co2:      "~0.4 kg CO₂eq saved vs whey bar",
+  time:     "25 min + chill",
+  servings: "10 bars",
+  intro:    "Modelled on Mexican mole: dark cacao + chilli + peanut + seeds on a 25g protein base. Capsaicin (TRPV1 activation, associated with improved metabolic health) plus cacao flavanols and cranberry proanthocyanidins — three anti-inflammatory compound classes in one bar.",
+  ingredientGroups: [
+    {
+      heading: "Ingredients (batch of 10 bars)",
+      items: [
+        "170g pea protein isolate",
+        "55g soy protein crisps",
+        "55g popped amaranth",
+        "70g peanut butter",
+        "45g hemp seeds",
+        "40g pumpkin seeds",
+        "25g sesame seeds",
+        "30g flaxseed, ground",
+        "30g chia seeds",
+        "40g raw cacao powder + 20g cacao nibs",
+        "95g date paste",
+        "5g cayenne + 5g chipotle powder",
+        "30g dried cranberries",
+        "3g cinnamon · 5g vanilla · 3g sea salt"
+      ]
+    }
+  ],
+  methodSteps: [
+    {
+      heading: "Make the bars",
+      steps: [
+        "Pop amaranth; toast pumpkin, sesame and hemp seeds.",
+        "Warm date paste and peanut butter; whisk in pea protein, cacao, cayenne, chipotle, cinnamon, vanilla and salt.",
+        "Fold in soy crisps, popped amaranth, hemp, seeds, cacao nibs and cranberries.",
+        "Press into a lined tin, chill 1 h, cut into 10 bars (~73g each).",
+        "Optional: dust with cacao + a whisper of cayenne. Keeps refrigerated 10 days; freezes well."
+      ]
+    }
+  ],
+  tips: "💡 Per-bar estimate: 310 kcal · 25g protein · 8g fibre · 22g carbs · 14g fat · 14 plants. Heat scales with the cayenne — start at 3g per batch for capsaicin-naive audiences. Chipotle adds smoke, not just fire."
+}
 
   // ─── ADD NEW RECIPES BELOW THIS LINE ──────────────────────
   // Remember to add a comma after the closing brace of the recipe above. 
